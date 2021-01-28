@@ -50,7 +50,7 @@ def purge(bot: Bot, update: Update, args: List[str]) -> str:
                 elif err.message != "Message to delete not found":
                     LOGGER.exception("Error while purging chat messages.")
 
-            bot.send_message(chat.id, "Purge complete.")
+            #bot.send_message(chat.id, "Purge complete.")
             return "<b>{}:</b>" \
                    "\n#PURGE" \
                    "\n<b>Admin:</b> {}" \
