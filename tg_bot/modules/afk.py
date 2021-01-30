@@ -65,18 +65,23 @@ def reply_afk(bot: Bot, update: Update):
             else:
                 return
 
+            check_afk(bot, update, user_id, fst_name)
+
     if message.reply_to_message:
         user_id = message.reply_to_message.from_user.id
         fst_name = message.reply_to_message.from_user.first_name
+        check_afk(bot, update, user_id, fst_name)
 
+def check_afk(bot, update, user_id, fst_name):
     if sql.is_afk(user_id):
         valid, reason = sql.check_afk_status(user_id)
         if valid:
-             if not reason:
-                    res = "{} is AFK!".format(fst_name)
-             else:
-                    res = "{} is AFK! says its because of:\n{}".format(fst_name, reason)
-             message.reply_text(res)
+            if not reason:
+                res = "{} is AFK!".format(fst_name)
+            else:
+                res = "{} is AFK! says its because of:\n{}".format(fst_name, reason)
+            message = update.effective_message  # type: Optional[Message]
+            message.reply_text(res)
 
 
 def __gdpr__(user_id):
