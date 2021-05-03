@@ -200,9 +200,9 @@ def getfw(update: Update, context: CallbackContext):
                 reply += f'• Android: `{os1}`\n'
                 reply += f'\n'
         else:
-            reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
-        reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
+            reply += f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
         if len(page2.find("latest").text.strip().split('/')) == 3:
+            reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
             pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
             reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
             if phone2:
@@ -210,9 +210,12 @@ def getfw(update: Update, context: CallbackContext):
             if os2:
                 reply += f'• Android: `{os2}`\n'
             reply += f'\n'
-        else:
+        elif not os2 == None:
+            reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
             md5 = page2.find("latest").text.strip()
             reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
+        else:
+            reply += f'*No test release found for {model.upper()} and {csc.upper()}.*\n\n'
         reply += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
         reply += f'• [samfrew.com]({url1})\n'
         reply += f'• [sammobile.com]({url2})\n'
