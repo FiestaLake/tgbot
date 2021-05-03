@@ -1,7 +1,8 @@
 import re, html, time
 from bs4 import BeautifulSoup
 from requests import get
-from telegram import Message, Update, Bot, User, Chat, ParseMode, InlineKeyboardMarkup
+from yaml import load, Loader
+from telegram import Message, Update, Bot, User, Chat, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.error import BadRequest
 from telegram.ext import run_async
 from telegram.utils.helpers import escape_markdown, mention_html
@@ -108,141 +109,133 @@ def device(update: Update, context: CallbackContext):
                               disable_web_page_preview=True)
 
 
-def checkfw(update: Update, context: CallbackContext):
-    bot, args = context.bot, context.args
-    if not len(args) == 2:
-        reply = f'Give me something to fetch, like:\n`/checkfw SM-N975F DBT`'
-        del_msg = update.effective_message.reply_text(
-            "{}".format(reply),
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True)
-        time.sleep(5)
-        try:
-            del_msg.delete()
-            update.effective_message.delete()
-            return
-        except BadRequest as err:
-            if (err.message == "Message to delete not found") or (
-                    err.message == "Message can't be deleted"):
-                return
-    temp, csc = args
-    model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
-    fota = get(
-        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
-    )
-    test = get(
-        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
-    )
-    if test.status_code != 200:
-        reply = f"Couldn't check for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
-        del_msg = update.effective_message.reply_text(
-            "{}".format(reply),
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True)
-        time.sleep(5)
-        try:
-            del_msg.delete()
-            update.effective_message.delete()
-        except BadRequest as err:
-            if (err.message == "Message to delete not found") or (
-                    err.message == "Message can't be deleted"):
-                return
-    page1 = BeautifulSoup(fota.content, 'lxml')
-    page2 = BeautifulSoup(test.content, 'lxml')
-    os1 = page1.find("latest").get("o")
-    os2 = page2.find("latest").get("o")
-    if page1.find("latest").text.strip():
-        pda1, csc1, phone1 = page1.find("latest").text.strip().split('/')
-        reply = f'*Latest released firmware for {model.upper()} and {csc.upper()} is:*\n'
-        reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n'
-        if phone1:
-            reply += f'• Phone: `{phone1}`\n'
-        if os1:
-            reply += f'• Android: `{os1}`\n'
-        reply += f'\n'
-    else:
-        reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
-    reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
-    if len(page2.find("latest").text.strip().split('/')) == 3:
-        pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
-        reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
-        if phone2:
-            reply += f'• Phone: `{phone2}`\n'
-        if os2:
-            reply += f'• Android: `{os2}`\n'
-        reply += f'\n'
-    else:
-        md5 = page2.find("latest").text.strip()
-        reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
-
-    update.message.reply_text("{}".format(reply),
-                              parse_mode=ParseMode.MARKDOWN,
-                              disable_web_page_preview=True)
-
-
 def getfw(update: Update, context: CallbackContext):
     bot, args = context.bot, context.args
-    if not len(args) == 2:
-        reply = f'Give me something to fetch, like:\n`/getfw SM-N975F DBT`'
-        del_msg = update.effective_message.reply_text(
-            "{}".format(reply),
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True)
-        time.sleep(5)
+    if len(args) == 1:
+        msg = update.effective_message
+        codename = args[0]
+
+        URL = "https://raw.githubusercontent.com/XiaomiFirmwareUpdater/miui-updates-tracker/master/data/latest.yml"
+
+        yaml_data = load(get(URL).content, Loader=Loader)
+        data = [i for i in yaml_data if codename in i['codename']]
+
+        if len(data) < 1:
+            del_msg = msg.reply_text("Provide a valid codename (and csc)!")
+            time.sleep(5)
+            try:
+                del_msg.delete()
+                update.effective_message.delete()
+                return
+            except BadRequest as err:
+                if (err.message == "Message to delete not found") or (
+                        err.message == "Message can't be deleted"):
+                        return
+
+        markup = []
+        for fw in data:
+            av = fw['android']
+            branch = fw['branch']
+            method = fw['method']
+            link = fw['link']
+            fname = fw['name']
+            version = fw['version']
+
+            btn = fname + ' | ' + branch + ' | ' + method + ' | ' + version
+            markup.append([InlineKeyboardButton(text=btn, url=link)])
+
+        device = fname.split(" ")
+        device.pop()
+        device = " ".join(device)
+        del_msg = msg.reply_text(f"The latest firmwares for *{device}* are:",
+                        reply_markup=InlineKeyboardMarkup(markup),
+                        parse_mode=ParseMode.MARKDOWN)
+        time.sleep(60)
         try:
             del_msg.delete()
             update.effective_message.delete()
             return
         except BadRequest as err:
             if (err.message == "Message to delete not found") or (
-                    err.message == "Message can't be deleted"):
-                return
-    temp, csc = args
-    model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
-    test = get(
-        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
-    )
-    if test.status_code != 200:
-        reply = f"Couldn't find any firmware downloads for {temp.upper()} and {csc.upper()}, please refine your search or try again later!"
-        del_msg = update.effective_message.reply_text(
-            "{}".format(reply),
-            parse_mode=ParseMode.MARKDOWN,
-            disable_web_page_preview=True)
-        time.sleep(5)
+                err.message == "Message can't be deleted"):
+                    return
+
+    if len(args) == 2:
+        temp, csc = args
+        model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
+        fota = get(
+            f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
+        )
+        test = get(
+            f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
+        )
+        if test.status_code != 200:
+            del_msg = update.effective_message.reply_text("Provide a valid codename and csc!")
+            time.sleep(5)
+            try:
+                del_msg.delete()
+                update.effective_message.delete()
+            except BadRequest as err:
+                if (err.message == "Message to delete not found") or (
+                        err.message == "Message can't be deleted"):
+                    return
+
+        url1 = f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/'
+        url2 = f'https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/'
+        url3 = f'https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares'
+        url4 = f'https://samfw.com/firmware/{model.upper()}/{csc.upper()}/'
+
+        page1 = BeautifulSoup(fota.content, 'lxml')
+        page2 = BeautifulSoup(test.content, 'lxml')
+        os1 = page1.find("latest").get("o")
+        os2 = page2.find("latest").get("o")
+        reply = ""
+        if page1.find("latest").text.strip():
+            pda1, csc1, phone1 = page1.find("latest").text.strip().split('/')
+            reply += f'*Latest firmware for {model.upper()} and {csc.upper()} is:*\n'
+            reply += f'• PDA: `{pda1}`\n• CSC: `{csc1}`\n'
+            if phone1:
+                reply += f'• Phone: `{phone1}`\n'
+            if os1:
+                reply += f'• Android: `{os1}`\n'
+                reply += f'\n'
+        else:
+            reply = f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
+        reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
+        if len(page2.find("latest").text.strip().split('/')) == 3:
+            pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
+            reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
+            if phone2:
+                reply += f'• Phone: `{phone2}`\n'
+            if os2:
+                reply += f'• Android: `{os2}`\n'
+            reply += f'\n'
+        else:
+            md5 = page2.find("latest").text.strip()
+            reply += f'• Hash: `{md5}`\n• Android: `{os2}`\n\n'
+        reply += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
+        reply += f'• [samfrew.com]({url1})\n'
+        reply += f'• [sammobile.com]({url2})\n'
+        reply += f'• [sfirmware.com]({url3})\n'
+        reply += f'• [samfw.com]({url4})\n'
+        del_msg = update.message.reply_text("{}".format(reply),
+                                parse_mode=ParseMode.MARKDOWN,
+                                disable_web_page_preview=True)
+        
+        time.sleep(60)
         try:
             del_msg.delete()
             update.effective_message.delete()
+            return
         except BadRequest as err:
             if (err.message == "Message to delete not found") or (
-                    err.message == "Message can't be deleted"):
-                return
-    url1 = f'https://samfrew.com/model/{model.upper()}/region/{csc.upper()}/'
-    url2 = f'https://www.sammobile.com/samsung/firmware/{model.upper()}/{csc.upper()}/'
-    url3 = f'https://sfirmware.com/samsung-{model.lower()}/#tab=firmwares'
-    url4 = f'https://samfw.com/firmware/{model.upper()}/{csc.upper()}/'
-    fota = get(
-        f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
-    )
-    page = BeautifulSoup(fota.content, 'lxml')
-    os = page.find("latest").get("o")
-    reply = ""
-    if page.find("latest").text.strip():
-        pda, csc2, phone = page.find("latest").text.strip().split('/')
-        reply += f'*Latest firmware for {model.upper()} and {csc.upper()} is:*\n'
-        reply += f'• PDA: `{pda}`\n• CSC: `{csc2}`\n'
-        if phone:
-            reply += f'• Phone: `{phone}`\n'
-        if os:
-            reply += f'• Android: `{os}`\n'
-    reply += f'\n'
-    reply += f'*Downloads for {model.upper()} and {csc.upper()}*\n'
-    reply += f'• [samfrew.com]({url1})\n'
-    reply += f'• [sammobile.com]({url2})\n'
-    reply += f'• [sfirmware.com]({url3})\n'
-    reply += f'• [samfw.com]({url4})\n'
-    update.message.reply_text("{}".format(reply),
-                              parse_mode=ParseMode.MARKDOWN,
-                              disable_web_page_preview=True)
+                err.message == "Message can't be deleted"):
+                    return
+
+    else:
+        msg = update.effective_message
+        msg.reply_text("Provide a valid codename (and csc)!")
+        return
 
 
 def twrp(update: Update, context: CallbackContext):
@@ -308,19 +301,21 @@ def twrp(update: Update, context: CallbackContext):
 
 
 __help__ = """
-*Android related commands:*
+If you are searching stuffs related to Android, then here you are.
 
  - /magisk - gets the latest magisk release for Stable/Beta/Canary
  - /device <codename> - gets android device basic info from its codename
  - /twrp <codename> -  gets latest twrp for the android device using the codename
- - /checkfw <model> <csc> - Samsung only - shows the latest firmware info for the given device, taken from samsung servers
- - /getfw <model> <csc> - Samsung only - gets firmware download links from samfrew, sammobile and sfirmwares for the given device
+ - /getfw <model> <csc> - Samsung
+   /getfw <codename> - Miui
+   : gets firmware info & download links for the given device
  
  *Examples:*
   /device greatlte
   /twrp a5y17lte
   /checkfw SM-A305F INS
   /getfw SM-M205FN SER
+  /getfw whyred
  
 """
 
@@ -331,11 +326,9 @@ MAGISK_HANDLER = DisableAbleCommandHandler("magisk", magisk, run_async=True)
 DEVICE_HANDLER = DisableAbleCommandHandler("device", device, run_async=True)
 TWRP_HANDLER = DisableAbleCommandHandler("twrp", twrp, run_async=True)
 GETFW_HANDLER = DisableAbleCommandHandler("getfw", getfw, run_async=True)
-CHECKFW_HANDLER = DisableAbleCommandHandler("checkfw", checkfw, run_async=True)
 
 dispatcher.add_handler(PHH_HANDLER)
 dispatcher.add_handler(MAGISK_HANDLER)
 dispatcher.add_handler(DEVICE_HANDLER)
 dispatcher.add_handler(TWRP_HANDLER)
 dispatcher.add_handler(GETFW_HANDLER)
-dispatcher.add_handler(CHECKFW_HANDLER)
