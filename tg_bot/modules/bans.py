@@ -471,14 +471,6 @@ KICKME_HANDLER = DisableAbleCommandHandler("kickme",
                                            kickme,
                                            filters=Filters.chat_type.groups,
                                            run_async=True)
-RIPME_HANDLER = DisableAbleCommandHandler("rip",
-                                          kickme,
-                                          filters=Filters.chat_type.groups,
-                                          run_async=True)
-AFK_HANDLER = DisableAbleCommandHandler("afk",
-                                        kickme,
-                                        filters=Filters.chat_type.groups,
-                                        run_async=True)
 BANME_HANDLER = DisableAbleCommandHandler("banme",
                                           banme,
                                           filters=Filters.chat_type.groups,
@@ -489,6 +481,4 @@ dispatcher.add_handler(TEMPBAN_HANDLER)
 dispatcher.add_handler(KICK_HANDLER)
 dispatcher.add_handler(UNBAN_HANDLER)
 dispatcher.add_handler(KICKME_HANDLER)
-dispatcher.add_handler(RIPME_HANDLER)
-dispatcher.add_handler(AFK_HANDLER)
 dispatcher.add_handler(BANME_HANDLER)
