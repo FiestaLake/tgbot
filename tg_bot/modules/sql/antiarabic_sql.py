@@ -29,6 +29,9 @@ def chat_antiarabic(chat_id: Union[str, int]) -> bool:
         if chat_setting:
             return chat_setting.antiarabic
         return False
+    except:
+        SESSION.rollback()
+        return False
     finally:
         SESSION.close()
 
