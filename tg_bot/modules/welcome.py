@@ -114,7 +114,7 @@ def new_member(update: Update, context: CallbackContext):
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
     msg = update.effective_message  # type: Optional[Message]
-    chat_name = chat.title or chat.first or chat.username  # type: Optional:[chat name]
+    chat_name = chat.title or chat.first or chat.username  # type: Optional[chat_name]
     should_welc, cust_welcome, cust_media, welc_type = sql.get_welc_pref(
         chat.id)
     welc_mutes = sql.welcome_mutes(chat.id)
@@ -145,7 +145,7 @@ def new_member(update: Update, context: CallbackContext):
             send_to_list(bot, SUDO_USERS + SUPPORT_USERS, report, html=True)
         if defense:
             bantime = int(time.time()) + 60
-            chat.kick_member(new_mem.id, until_date=bantime)
+            chat.kick_member(user.id, until_date=bantime)
     elif casPrefs and autoban and cas.banchecker(user.id):
         chat.kick_member(user.id)
         msg.reply_text(
@@ -266,7 +266,10 @@ def new_member(update: Update, context: CallbackContext):
                                 or member.status == 'left'):
                             print("kicking user..")
                             bantime = int(time.time()) + 60
-                            chat.kick_member(new_mem.id, until_date=bantime)
+                            try:
+                                chat.kick_member(new_mem.id, until_date=bantime)
+                            except:
+                                pass
                             buttonMsg.delete()
                             sent.delete()
                             update.message.delete()
@@ -707,7 +710,10 @@ def user_button(update: Update, context: CallbackContext):
                                      can_send_other_messages=False,
                                      can_add_web_page_previews=False),
                                  until_date=(int(time.time() + 24 * 60 * 60)))
-        bot.deleteMessage(chat.id, message.message_id)
+        try:
+            bot.deleteMessage(chat.id, message.message_id)
+        except:
+            pass
     else:
         query.answer(text="Nah, this button ain't for you!")
 
