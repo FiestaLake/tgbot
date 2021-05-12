@@ -108,9 +108,14 @@ def device(update: Update, context: CallbackContext):
 
 def getfw(update: Update, context: CallbackContext):
     bot, args = context.bot, context.args
-    if len(args) == 1:
+    if len(args) == 0:
         msg = update.effective_message
-        codename = args[0]
+        msg.reply_text("Provide a valid type of fw!")
+        return    
+
+    if args[0] == "M":
+        msg = update.effective_message
+        codename = args[1]
 
         URL = "https://raw.githubusercontent.com/XiaomiFirmwareUpdater/miui-updates-tracker/master/data/latest.yml"
 
@@ -118,7 +123,7 @@ def getfw(update: Update, context: CallbackContext):
         data = [i for i in yaml_data if codename in i['codename']]
 
         if len(data) < 1:
-            del_msg = msg.reply_text("Provide a valid codename (and csc)!")
+            del_msg = msg.reply_text("Provide a valid codename!")
             time.sleep(5)
             try:
                 del_msg.delete()
@@ -157,8 +162,8 @@ def getfw(update: Update, context: CallbackContext):
                 err.message == "Message can't be deleted"):
                     return
 
-    if len(args) == 2:
-        temp, csc = args
+    if args[0] == "S":
+        none, temp, csc = args
         model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
         fota = get(
             f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.xml'
@@ -167,7 +172,7 @@ def getfw(update: Update, context: CallbackContext):
             f'http://fota-cloud-dn.ospserver.net/firmware/{csc.upper()}/{model.upper()}/version.test.xml'
         )
         if test.status_code != 200:
-            del_msg = update.effective_message.reply_text("Provide a valid codename and csc!")
+            del_msg = update.effective_message.reply_text("Provide a valid model and csc!")
             time.sleep(5)
             try:
                 del_msg.delete()
@@ -234,7 +239,7 @@ def getfw(update: Update, context: CallbackContext):
 
     else:
         msg = update.effective_message
-        msg.reply_text("Provide a valid codename (and csc)!")
+        msg.reply_text("Provide a valid type of fw!")
         return
 
 
@@ -306,16 +311,15 @@ If you are searching stuffs related to Android, then here you are.
  - /magisk - gets the latest magisk release for Stable/Beta/Canary
  - /device <codename> - gets android device basic info from its codename
  - /twrp <codename> -  gets latest twrp for the android device using the codename
- - /getfw <model> <csc> - Samsung
-   /getfw <codename> - Miui
+ - /getfw S <model> <csc> - Samsung
+   /getfw M <codename> - Miui
    : gets firmware info & download links for the given device
  
  *Examples:*
   /device greatlte
   /twrp a5y17lte
-  /checkfw SM-A305F INS
-  /getfw SM-M205FN SER
-  /getfw whyred
+  /getfw S SM-M205FN SER
+  /getfw M whyred
  
 """
 
