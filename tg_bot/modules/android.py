@@ -27,21 +27,18 @@ def phh(update: Update, context: CallbackContext):
 
 def magisk(update: Update, context: CallbackContext):
     bot = context.bot
-    url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/'
+    url = 'https://raw.githubusercontent.com/topjohnwu/magisk-files/'
     releases = ""
     for type, branch in {
-            "Stable": ["master/stable", "master"],
-            "Beta": ["master/beta", "master"],
-            "Canary": ["canary/canary", "canary"]
+            "Stable": "master/stable",
+            "Beta": "master/beta", 
+            "Canary": "master/canary"
     }.items():
-        data = get(url + branch[0] + '.json').json()
+        data = get(url + branch + '.json').json()
         notes = "https://topjohnwu.github.io/Magisk/releases/" + data[
                 "magisk"]["versionCode"] + ".html"
         if str(type) == "Canary":
-            data["magisk"][
-                "link"] = "https://github.com/topjohnwu/magisk_files/raw/canary/" + data[
-                    "magisk"]["link"]
-            notes = "https://github.com/topjohnwu/magisk_files/blob/canary/notes.md"
+            notes = "https://github.com/topjohnwu/magisk-files/blob/canary/notes.md"
         releases += f'*• {type}* - `{data["magisk"]["version"]}-{data["magisk"]["versionCode"]}` → ' \
                     f'[Notes]({notes}) / ' \
                     f'[Magisk]({data["magisk"]["link"]}) \n'
