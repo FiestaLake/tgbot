@@ -231,8 +231,8 @@ def list_notes(update: Update, context: CallbackContext):
     bot = context.bot
     chat_id = update.effective_chat.id
     timer = sql.get_clearnotes(chat_id)
-    chat = update.effective_chat  # type: Optional[Chat]
-    user = update.effective_user  # type: Optional[User]
+    chat = update.effective_chat  # type: Optional[chat]
+    user = update.effective_user  # type: Optional[user]
     note_list = sql.get_all_chat_notes(chat_id)
     chat_name = chat.title or chat.first or chat.username
     msg = "*List of notes in {}:*\n"
