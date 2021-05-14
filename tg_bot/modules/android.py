@@ -204,14 +204,17 @@ def getfw(update: Update, context: CallbackContext):
         else:
             reply += f'*No public release found for {model.upper()} and {csc.upper()}.*\n\n'
         if len(page2.find("latest").text.strip().split('/')) == 3:
-            reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
-            pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
-            reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
-            if phone2:
-                reply += f'• Phone: `{phone2}`\n'
-            if os2:
-                reply += f'• Android: `{os2}`\n'
-            reply += f'\n'
+            if os2 == None:
+                reply += f'*Test release info is encrypted for {model.upper()} and {csc.upper()}.*\n\n'
+            else:
+                reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
+                pda2, csc2, phone2 = page2.find("latest").text.strip().split('/')
+                reply += f'• PDA: `{pda2}`\n• CSC: `{csc2}`\n'
+                if phone2:
+                    reply += f'• Phone: `{phone2}`\n'
+                if os2:
+                    reply += f'• Android: `{os2}`\n'
+                reply += f'\n'
         elif not os2 == None:
             reply += f'*Latest test firmware for {model.upper()} and {csc.upper()} is:*\n'
             md5 = page2.find("latest").text.strip()
