@@ -212,7 +212,10 @@ def clear(update: Update, context: CallbackContext):
     msg = update.effective_message
     chat = update.effective_chat
     chat_name = chat.title or chat.first or chat.username
-    note_name, text, data_type, content, buttons = get_note_type(msg)
+    try:
+        note_name, text, data_type, content, buttons = get_note_type(msg)
+    except:
+        return
     if len(args) >= 1:
         notename = args[0]
 
