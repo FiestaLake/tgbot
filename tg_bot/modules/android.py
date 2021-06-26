@@ -108,7 +108,7 @@ def device(update: Update, context: CallbackContext):
 
 def getfw(update: Update, context: CallbackContext):
     bot, args = context.bot, context.args
-    if len(args) == 0:
+    if len(args) < 2:
         msg = update.effective_message
         msg.reply_text("Provide a valid type of fw!")
         return    
@@ -163,6 +163,10 @@ def getfw(update: Update, context: CallbackContext):
                     return
 
     if args[0] == "S":
+        if len(args) < 3:
+            msg = update.effective_message
+            msg.reply_text("Provide a valid type of csc!")
+            return
         none, temp, csc = args
         model = f'sm-' + temp if not temp.upper().startswith('SM-') else temp
         fota = get(
