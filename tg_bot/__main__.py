@@ -23,7 +23,7 @@ Hi {}, my name is *{}*!
 
 I'm a group manager bot built in python3, using the python-telegram-bot library. And I'm fully [open source](github.com/FiestaLake/tgbot)!
 
-You can join our [Dev Channel](https://t.me/FiestaLake_dev) ( @FiestaLake\_dev ) for announcements \
+You can join our [News Channel](https://t.me/MinjiNews) ( @MinjiNews ) for announcements \
 regarding bot updates, new features and possible bug fixes.
 
 Feel free to submit pull requests on github with any bugs, questions \

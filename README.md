@@ -4,7 +4,7 @@ A modular telegram Python bot running on python3 with an sqlalchemy database.
 Originally a simple group management bot with multiple admin features, it has evolved into becoming a basis for modular
 bots aiming to provide simple plugin expansion via a simple drag and drop.
 
-Join the [Dev Channel](https://t.me/FiestaLake_dev) if you want to stay in the loop about new features or
+Join our [News Channel](https://t.me/MinjiNews) if you want to stay in the loop about new features or
 announcements.
 
 Note to maintainers that all schema changes will be found in the commit messages, and its their responsibility to read any new commits.
