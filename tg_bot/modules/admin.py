@@ -176,6 +176,8 @@ def pin(update: Update, context: CallbackContext) -> str:
             bot.pinChatMessage(chat.id,
                                prev_message.message_id,
                                disable_notification=is_silent)
+            if not is_silent:
+                update.effective_message.reply_text('Pinned and it will be notified to users!')
         except BadRequest as excp:
             if excp.message == "Chat_not_modified":
                 pass
