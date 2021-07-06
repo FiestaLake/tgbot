@@ -60,7 +60,8 @@ def promote(update: Update, context: CallbackContext, check="restrict") -> str:
         can_restrict_members=bot_member.can_restrict_members,
         can_promote_members=bool(False if user_id not in SUDO_USERS else
                                  bot_member.can_restrict_members),
-        can_pin_messages=bot_member.can_pin_messages)
+        can_pin_messages=bot_member.can_pin_messages,
+        can_manage_voice_chats=bot_member.can_manage_voice_chats)
 
     text = ""
     if title:
@@ -130,7 +131,8 @@ def demote(update: Update, context: CallbackContext) -> str:
                               can_invite_users=False,
                               can_restrict_members=False,
                               can_pin_messages=False,
-                              can_promote_members=False)
+                              can_promote_members=False,
+                              can_manage_voice_chats=False)
 
         message.reply_text("Successfully demoted {}!".format(
             mention_html(user_member.user.id, user_member.user.first_name)),
