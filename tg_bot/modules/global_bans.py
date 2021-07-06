@@ -79,7 +79,7 @@ def gban(update: Update, context: CallbackContext):
         return
 
     try:
-        update.effective_chat.kick_member(user_id)
+        update.effective_chat.ban_member(user_id)
     except:
         pass
 
@@ -281,7 +281,7 @@ def gbanlist(update: Update, context: CallbackContext):
 
 def check_and_ban(update, user_id, should_message=True):
     if sql.is_user_gbanned(user_id):
-        update.effective_chat.kick_member(user_id)
+        update.effective_chat.ban_member(user_id)
         if should_message:
             update.effective_message.reply_text(
                 "This user was globally banned by my owner or one of my sudo/support users so it shouldn't be here!"
