@@ -370,13 +370,15 @@ If you are searching stuffs related to Android, then here you are.
  - /magisk - gets the latest magisk release for Stable/Beta/Canary
  - /device <codename> - gets android device basic info from its codename
  - /twrp <codename> -  gets latest twrp for the android device using the codename
- - /getfw S <model> <csc> - Samsung
-   /getfw M <codename> - Miui
-   : gets firmware info & download links for the given device
+ - /shrp <codename> -  gets latest shrp for the android device using the codename
+ - /getfw S <model> <csc> - Samsung: gets firmware info & download links for the given model
+ - /getfw M <codename> - Miui: gets firmware info & download links for the given codename
  
  *Examples:*
+  /magisk
   /device greatlte
   /twrp a5y17lte
+  /shrp beyondx
   /getfw S SM-M205FN SER
   /getfw M whyred
  
