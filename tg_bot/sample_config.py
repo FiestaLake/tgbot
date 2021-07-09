@@ -17,12 +17,13 @@ class Config(object):
     OWNER_USERNAME = "YOUR USERNAME HERE"
 
     # RECOMMENDED
-    SQLALCHEMY_DATABASE_URI = 'sqldbtype://username:pw@hostname:port/db_name'  # needed for any database modules
-    MESSAGE_DUMP = None  # needed to make sure 'save from' messages persist
+    SQLALCHEMY_DATABASE_URI = 'sqldbtype://username:pw@hostname:port/db_name'  # Needed for any database modules
+    MESSAGE_DUMP = None  # Needed to make sure 'save from' messages persist
     LOAD = []
-    # sed has been disabled after the discovery that certain long-running sed commands maxed out cpu usage
-    # and killed the bot. Be careful re-enabling it!
-    NO_LOAD = ['translation', 'rss', 'weather', 'sed']
+    # 'sed' module is disabled in marie, but it's not disabled here. 
+    # Since it only works for owner, sudo users, and support users.
+    # We won't face any issues cause power users only can use this.
+    NO_LOAD = []
     WEBHOOK = False
     URL = None
 
@@ -33,16 +34,13 @@ class Config(object):
     ]  # List of id's (not usernames) for users which are allowed to gban, but can also be banned.
     WHITELIST_USERS = [
     ]  # List of id's (not usernames) for users which WONT be banned/kicked by the bot.
-    DONATION_LINK = None  # EG, paypal
     CERT_PATH = None
     PORT = 5000
     DEL_CMDS = False  # Whether or not you should delete "blue text must click" commands
     STRICT_GBAN = False
-    STRICT_GMUTE = False
     WORKERS = 8  # Number of subthreads to use. This is the recommended amount - see for yourself what works best!
     BAN_STICKER = 'CAACAgEAAxkBAAEB0r1gErzeIbolC_dIrDPLKAPqSU1duAACLwADnjOcH-wxu-ehy6NRHgQ'  # ban sticker
     ALLOW_EXCL = False  # Allow ! commands as well as /
-    API_OPENWEATHER = None  # OpenWeather API
 
 
 class Production(Config):
