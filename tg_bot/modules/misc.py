@@ -1,23 +1,18 @@
-import html
-import json
-import random
-from datetime import datetime
-from typing import Optional, List
-import time
-import requests
-import os
-from telegram import Message, Chat, Update, Bot, MessageEntity, ParseMode
-from telegram.ext import CommandHandler, run_async, Filters
+import html, random
+
+from typing import Optional
+
+from telegram import Message, Chat, Update, Bot, MessageEntity, ParseMode, Location
+from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS, BAN_STICKER
+from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS
 from tg_bot.__main__ import STATS, USER_INFO, GDPR
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.extraction import extract_user
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 from geopy.geocoders import Nominatim
-from telegram import Location
 
 RUN_STRINGS = (
     "Where do you think you're going?",
@@ -505,54 +500,6 @@ def info(update: Update, context: CallbackContext):
     update.effective_message.reply_text(text, parse_mode=ParseMode.HTML)
 
 
-def get_time(update: Update, context: CallbackContext):
-    bot, args = context.bot, context.args
-    location = " ".join(args)
-    if location.lower() == bot.first_name.lower():
-        update.effective_message.reply_text(
-            "Its always banhammer time for me!")
-        bot.send_sticker(update.effective_chat.id, BAN_STICKER)
-        return
-
-    res = requests.get(GMAPS_LOC, params=dict(address=location))
-
-    if res.status_code == 200:
-        loc = json.loads(res.text)
-        if loc.get('status') == 'OK':
-            lat = loc['results'][0]['geometry']['location']['lat']
-            long = loc['results'][0]['geometry']['location']['lng']
-
-            country = None
-            city = None
-
-            address_parts = loc['results'][0]['address_components']
-            for part in address_parts:
-                if 'country' in part['types']:
-                    country = part.get('long_name')
-                if 'administrative_area_level_1' in part['types'] and not city:
-                    city = part.get('long_name')
-                if 'locality' in part['types']:
-                    city = part.get('long_name')
-
-            if city and country:
-                location = "{}, {}".format(city, country)
-            elif country:
-                location = country
-
-            timenow = int(datetime.utcnow().timestamp())
-            res = requests.get(GMAPS_TIME,
-                               params=dict(location="{},{}".format(lat, long),
-                                           timestamp=timenow))
-            if res.status_code == 200:
-                offset = json.loads(res.text)['dstOffset']
-                timestamp = json.loads(res.text)['rawOffset']
-                time_there = datetime.fromtimestamp(timenow + timestamp +
-                                                    offset).strftime(
-                                                        "%H:%M:%S on %A %d %B")
-                update.message.reply_text("It's {} in {}".format(
-                    time_there, location))
-
-
 def echo(update: Update, context: CallbackContext):
     bot = context.bot
     args = update.effective_message.text.split(None, 1)
@@ -652,7 +599,8 @@ def gps(update: Update, context: CallbackContext):
     message = update.effective_message
     if len(args) == 0:
         update.effective_message.reply_text(
-            "That was a funny joke, but no really, put in a location")
+            "That was a funny joke, but no really. Put in a location.")
+        return
     try:
         geolocator = Nominatim(user_agent="hades")
         location = " ".join(args)
@@ -670,39 +618,36 @@ def gps(update: Update, context: CallbackContext):
         update.message.reply_text("I can't find that")
 
 
-# /ip is for private use
 __help__ = """
-An "odds and ends" module for small, simple commands which don't really fit anywhere
+An "odds and ends" module for small, simple commands which don't really fit anywhere.
+
  - /id: get the current group id. If used by replying to a message, gets that user's id.
  - /runs: reply a random string from an array of replies.
- - /spank: same as /slap but nastier.
+ - /smack: one of the /slap family. #1.
+ - /spank: same with /slap.
  - /slap: slap a user, or get slapped if not a reply.
+ - /punch: one of the /slap family. #2.
  - /info: get information about a user.
+ - /echo: echo your message.
  - /gdpr: deletes your information from the bot's database. Private chats only.
+ - /gps: get info (map) of your location.
  - /markdownhelp: quick summary of how markdown works in telegram - can only be called in private chats.
 """
 
 __mod_name__ = "Misc"
 
 ID_HANDLER = DisableAbleCommandHandler("id", get_id, run_async=True)
-
-TIME_HANDLER = CommandHandler("time", get_time, run_async=True)
-
 RUNS_HANDLER = DisableAbleCommandHandler("runs", runs, run_async=True)
 SMACK_HANDLER = DisableAbleCommandHandler("smack", smack, run_async=True)
 SLAP_HANDLER = DisableAbleCommandHandler("slap", slap, run_async=True)
-PUNCH_HANDLER = DisableAbleCommandHandler("punch", punch, run_async=True)
 SPANK_HANDLER = DisableAbleCommandHandler("spank", slap, run_async=True)
+PUNCH_HANDLER = DisableAbleCommandHandler("punch", punch, run_async=True)
 INFO_HANDLER = DisableAbleCommandHandler("info", info, run_async=True)
-ECHO_HANDLER = CommandHandler("echo",
-                              echo,
-                              filters=Filters.user(OWNER_ID),
-                              run_async=True)
+ECHO_HANDLER = DisableAbleCommandHandler("echo", echo, run_async=True)
 MD_HELP_HANDLER = CommandHandler("markdownhelp",
                                  markdown_help,
                                  filters=Filters.private,
                                  run_async=True)
-
 STATS_HANDLER = CommandHandler("stats",
                                stats,
                                filters=CustomFilters.sudo_filter,
@@ -714,12 +659,11 @@ GDPR_HANDLER = CommandHandler("gdpr",
 GPS_HANDLER = DisableAbleCommandHandler("gps", gps, run_async=True)
 
 dispatcher.add_handler(ID_HANDLER)
-# dispatcher.add_handler(TIME_HANDLER)
 dispatcher.add_handler(RUNS_HANDLER)
 dispatcher.add_handler(SMACK_HANDLER)
 dispatcher.add_handler(SLAP_HANDLER)
-dispatcher.add_handler(PUNCH_HANDLER)
 dispatcher.add_handler(SPANK_HANDLER)
+dispatcher.add_handler(PUNCH_HANDLER)
 dispatcher.add_handler(INFO_HANDLER)
 dispatcher.add_handler(ECHO_HANDLER)
 dispatcher.add_handler(MD_HELP_HANDLER)
