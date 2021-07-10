@@ -4,7 +4,7 @@ from io import BytesIO
 from typing import Optional, List
 
 from telegram import MAX_MESSAGE_LENGTH, ParseMode, InlineKeyboardMarkup
-from telegram import Message, Update, Bot
+from telegram import Message, Update, Bot, Chat, User
 from telegram.error import BadRequest
 from telegram.ext import CommandHandler, RegexHandler, Filters
 from telegram.ext.dispatcher import run_async
@@ -234,8 +234,8 @@ def list_notes(update: Update, context: CallbackContext):
     bot = context.bot
     chat_id = update.effective_chat.id
     timer = sql.get_clearnotes(chat_id)
-    chat = update.effective_chat  # type: Optional[chat]
-    user = update.effective_user  # type: Optional[user]
+    chat = update.effective_chat  # type: Optional[Chat]
+    user = update.effective_user  # type: Optional[User]
     note_list = sql.get_all_chat_notes(chat_id)
     chat_name = chat.title or chat.first or chat.username
     msg = "*List of notes in {}:*\n"
