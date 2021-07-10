@@ -3,6 +3,7 @@ from typing import Union
 
 from sqlalchemy import Column, Integer, String, Boolean
 
+from tg_bot import LOGGER
 from tg_bot.modules.sql import SESSION, BASE
 
 
@@ -30,8 +31,10 @@ def chat_antiarabic(chat_id: Union[str, int]) -> bool:
             return chat_setting.antiarabic
         return False
     except:
-        SESSION.rollback()
         return False
+        LOGGER.warning("Unknown errors happened while querying" +
+                       "chat_antiarabic using sql.\n" +
+                       "Chat ID: %s", chat_id)
     finally:
         SESSION.close()
 
