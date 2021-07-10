@@ -45,12 +45,12 @@ def rtt(update: Update, context: CallbackContext):
     out = ""
     under = False
     if os.name == 'nt':
-        output = subprocess.check_output("ping -n 1 1.0.0.1 | findstr time*",
+        output = subprocess.check_output("ping -n 1 149.154.167.220 | findstr time*",
                                          shell=True).decode()
         outS = output.splitlines()
         out = outS[0]
     else:
-        out = subprocess.check_output("ping -c 1 1.0.0.1 | grep time=",
+        out = subprocess.check_output("ping -c 1 149.154.167.220 | grep time=",
                                       shell=True).decode()
     splitOut = out.split(' ')
     stringtocut = ""
