@@ -236,6 +236,7 @@ def clear(update: Update, context: CallbackContext):
         notename = args[0]
     else:
         update.effective_message.reply_text("I can't clear empty notes!")
+        return
     
     if notename.isnumeric():
         note_list = sql.get_all_chat_notes(chat_id)
