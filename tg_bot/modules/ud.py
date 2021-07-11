@@ -32,7 +32,7 @@ Definition: A once-popular system of telecommunications, in which the sender wou
  
 """
 
-__mod_name__ = "Urban dictionary"
+__mod_name__ = "Dictionary"
 
 ud_handle = DisableAbleCommandHandler("ud", ud, run_async=True)
 
