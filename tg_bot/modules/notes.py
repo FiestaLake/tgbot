@@ -16,6 +16,12 @@ from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons
 from tg_bot.modules.helper_funcs.msg_types import get_note_type
 
+warning = """
+A conflict happened between notename '{notename}' and noteid '{notename}' !
+Choosing notename '{notename}' ...
+Please change a name of the note later!
+"""
+
 FILE_MATCHER = re.compile(r"^###file_id(!photo)?###:(.*?)(?:\s|$)")
 
 ENUM_FUNC_MAP = {
@@ -39,11 +45,16 @@ def get(bot, update, notename, show_none=True, no_format=False):
     count = 0
 
     if notename.isnumeric():
-        note_list = sql.get_all_chat_notes(chat_id)
-        for note in note_list:
-            count = count + 1
-            if str(count) == notename:
-                notename = note.name
+        check = sql.get_note(chat_id, notename)
+        if check:
+            message.reply_text(warning.format(notename=notename))
+        else:
+            note_list = sql.get_all_chat_notes(chat_id)
+            for note in note_list:
+                count = count + 1
+                if str(count) == notename:
+                    notename = note.name
+                    break
 
     note = sql.get_note(chat_id, notename)  # Removed lower() for compatibility
 
@@ -182,6 +193,9 @@ def save(update: Update, context: CallbackContext):
     if len(text.strip()) == 0:
         text = escape_markdown(note_name)
 
+    if note_name.isnumeric():
+        note_name = "\"{}\"".format(note_name) # To avoid conflicts
+
     note_name = note_name.lower()
     sql.add_note_to_db(chat_id,
                        note_name,
@@ -224,11 +238,17 @@ def clear(update: Update, context: CallbackContext):
         update.effective_message.reply_text("I can't clear empty notes!")
     
     if notename.isnumeric():
-        note_list = sql.get_all_chat_notes(chat_id)
-        for note in note_list:
-            count = count + 1
-            if str(count) == notename:
-                notename = note.name
+        check = sql.get_note(chat_id, notename)
+        if check:
+            update.effective_message.reply_text(
+                warning.format(notename=notename))
+        else:
+            note_list = sql.get_all_chat_notes(chat_id)
+            for note in note_list:
+                count = count + 1
+                if str(count) == notename:
+                    notename = note.name
+                    break
 
     if sql.rm_note(chat_id, notename):
         update.effective_message.reply_text(
