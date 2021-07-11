@@ -1,13 +1,13 @@
-import html
+import html, time
 from typing import Optional
 
 from telegram import Message, Chat, Update, User, ChatPermissions
 from telegram import ParseMode
-from telegram.error import BadRequest
+from telegram.error import BadRequest, TelegramError
 from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, CallbackContext, SUDO_USERS
+from tg_bot import dispatcher, CallbackContext, SUDO_USERS, LOGGER
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import bot_admin, can_promote, user_admin, can_pin
 from tg_bot.modules.helper_funcs.extraction import extract_user_and_text, extract_user
@@ -64,8 +64,22 @@ def promote(update: Update, context: CallbackContext, check="restrict") -> str:
 
     text = ""
     if title:
-        bot.set_chat_administrator_custom_title(chat_id, user_id, title[:16])
-        text = " with title <code>{}</code>".format(title[:16])
+        try:
+            bot.set_chat_administrator_custom_title(chat_id, user_id, title[:16])
+            text = " with title <code>{}</code>".format(title[:16])
+        except:
+            time.sleep(1) # To avoid TG server not being updated quickly
+            try:
+                bot.set_chat_administrator_custom_title(chat_id, user_id, title[:16])
+                text = " with title <code>{}</code>".format(title[:16])
+            except:
+                LOGGER.warning("Errors happened while setting admin title\n" +
+                               "during promote(). Error=%s", exc_info=1)
+                try:
+                    bot.sendMessage("Unknown errors happened while setting title!\n" +
+                                "(Mostly an api server issue)")
+                except:
+                    pass
 
     message.reply_text("Successfully promoted {}".format(
         mention_html(user_member.user.id, user_member.user.first_name)) +
