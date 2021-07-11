@@ -646,7 +646,7 @@ INFO_HANDLER = DisableAbleCommandHandler("info", info, run_async=True)
 ECHO_HANDLER = DisableAbleCommandHandler("echo", echo, run_async=True)
 MD_HELP_HANDLER = CommandHandler("markdownhelp",
                                  markdown_help,
-                                 filters=Filters.private,
+                                 filters=Filters.chat_type.private,
                                  run_async=True)
 STATS_HANDLER = CommandHandler("stats",
                                stats,
@@ -654,7 +654,7 @@ STATS_HANDLER = CommandHandler("stats",
                                run_async=True)
 GDPR_HANDLER = CommandHandler("gdpr",
                               gdpr,
-                              filters=Filters.private,
+                              filters=Filters.chat_type.private,
                               run_async=True)
 GPS_HANDLER = DisableAbleCommandHandler("gps", gps, run_async=True)
 

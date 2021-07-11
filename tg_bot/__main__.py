@@ -459,7 +459,7 @@ def main():
 
     rhelp_handler = CommandHandler("regexhelp",
                                    regexhelp,
-                                   filters=Filters.private,
+                                   filters=Filters.chat_type.private,
                                    run_async=True)
 
     dispatcher.add_handler(start_handler)
