@@ -191,8 +191,7 @@ def save(update: Update, context: CallbackContext):
                        file=content)
 
     msg.reply_text(
-        "Saved `{note_name}` for *{chat_name}*!\nGet it with `/get {note_name}`, or `#{note_name}`."
-        .format(note_name=note_name, chat_name=chat_name),
+        "Successfully saved `{}` in here!".format(note_name),
         parse_mode=ParseMode.MARKDOWN)
 
     if msg.reply_to_message and msg.reply_to_message.from_user.is_bot:
