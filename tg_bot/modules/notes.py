@@ -143,7 +143,7 @@ def cmd_get(update: Update, context: CallbackContext):
     elif len(args) >= 1:
         get(bot, update, args[0], show_none=True)
     else:
-        update.effective_message.reply_text("Get rekt")
+        update.effective_message.reply_text("Please write down a correct name of the note.")
 
 
 def hash_get(update: Update, context: CallbackContext):
@@ -184,7 +184,7 @@ def save(update: Update, context: CallbackContext):
                        file=content)
 
     msg.reply_text(
-        "Yas! Saved `{note_name}` for *{chat_name}*.\nGet it with `/get {note_name}`, or `#{note_name}`"
+        "Saved `{note_name}` for *{chat_name}*!\nGet it with `/get {note_name}`, or `#{note_name}`."
         .format(note_name=note_name, chat_name=chat_name),
         parse_mode=ParseMode.MARKDOWN)
 
