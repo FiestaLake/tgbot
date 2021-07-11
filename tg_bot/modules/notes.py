@@ -16,6 +16,12 @@ from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons
 from tg_bot.modules.helper_funcs.msg_types import get_note_type
 
+warning = """
+A conflict happened between notename '{notename}' and noteid '{notename}' !
+Choosing notename '{notename}' ...
+Please change a name of the note later!
+"""
+
 FILE_MATCHER = re.compile(r"^###file_id(!photo)?###:(.*?)(?:\s|$)")
 
 ENUM_FUNC_MAP = {
@@ -38,12 +44,17 @@ def get(bot, update, notename, show_none=True, no_format=False):
     delmsg = ""
     count = 0
 
-    if notename.isnumeric():
+    check = sql.get_note(chat_id, notename)  # Removed lower() for compatibility
+
+    if not check and notename.isnumeric(): # For compatibility
         note_list = sql.get_all_chat_notes(chat_id)
         for note in note_list:
             count = count + 1
             if str(count) == notename:
                 notename = note.name
+
+    if check and notename.isnumeric():
+        message.reply_text(warning.format(notename=notename))
 
     note = sql.get_note(chat_id, notename)  # Removed lower() for compatibility
 
@@ -181,6 +192,9 @@ def save(update: Update, context: CallbackContext):
 
     if len(text.strip()) == 0:
         text = escape_markdown(note_name)
+
+    if note_name.isnumeric():
+        note_name = "\"{}\"".format(note_name) # To avoid conflicts
 
     note_name = note_name.lower()
     sql.add_note_to_db(chat_id,
