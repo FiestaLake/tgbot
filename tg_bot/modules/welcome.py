@@ -1064,7 +1064,7 @@ Commands:
  - /setkicktime: sets new auto-kick time value (between 30 and 900 seconds)
 """.format(WELC_HELP_TXT)
 
-__mod_name__ = "Welcomes/Goodbyes"
+__mod_name__ = "Greetings"
 
 NEW_MEM_HANDLER = MessageHandler(Filters.status_update.new_chat_members,
                                  new_member,
