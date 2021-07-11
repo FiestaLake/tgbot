@@ -1,19 +1,10 @@
-import html
-import json
-from datetime import datetime
-from typing import Optional, List
-import requests
-import subprocess
-import os
-import speedtest
-import time
-from telegram import Message, Chat, Update, Bot, MessageEntity
-from telegram import ParseMode
-from telegram.ext import CommandHandler, run_async, Filters
-from telegram.utils.helpers import escape_markdown, mention_html
+import requests, subprocess, os, speedtest
+
+from telegram import Update
+from telegram.ext import CommandHandler, Filters
 from tg_bot.modules.helper_funcs.extraction import extract_text
 
-from tg_bot import dispatcher, CallbackContext, OWNER_ID, SUDO_USERS, SUPPORT_USERS, WHITELIST_USERS
+from tg_bot import dispatcher, CallbackContext, OWNER_ID
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 

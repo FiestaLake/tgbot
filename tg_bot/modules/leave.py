@@ -1,15 +1,7 @@
-from time import sleep
+from telegram import TelegramError
+from telegram import Update
+from telegram.ext import Filters, CommandHandler
 
-from telegram import TelegramError, Chat, Message
-from telegram import Update, Bot
-from telegram.error import BadRequest
-from telegram.ext import MessageHandler, Filters, CommandHandler
-from telegram.ext.dispatcher import run_async
-from typing import List
-from tg_bot.modules.helper_funcs.filters import CustomFilters
-from tg_bot.modules.sql.users_sql import get_all_chats
-
-import telegram
 from tg_bot import dispatcher, CallbackContext, OWNER_ID
 
 MESSAGE_1 = "And when the lamb broke the seventh seal, there was silence in heaven."
@@ -29,7 +21,7 @@ def leave(update: Update, context: CallbackContext):
         try:
             bot.leave_chat(int(chat_id))
             update.effective_message.reply_text("Left the group successfully!")
-        except telegram.TelegramError:
+        except TelegramError:
             update.effective_message.reply_text("Attempt failed.")
     else:
         update.effective_message.reply_text("Give me a valid chat id")

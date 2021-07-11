@@ -126,7 +126,7 @@ def markdown_parser(txt: str,
 
 def button_markdown_parser(txt: str,
                            entities: Dict[MessageEntity, str] = None,
-                           offset: int = 0) -> (str, List):
+                           offset: int = 0) -> tuple('str, List'):
     markdown_note = markdown_parser(txt, entities, offset)
     prev = 0
     note_data = ""

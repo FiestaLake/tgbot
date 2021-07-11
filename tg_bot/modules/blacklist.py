@@ -1,10 +1,10 @@
 import html
 import re
-from typing import Optional, List
+from typing import Optional
 
-from telegram import Message, Chat, Update, Bot, ParseMode
+from telegram import Message, User, Chat, Update, ParseMode
 from telegram.error import BadRequest
-from telegram.ext import CommandHandler, MessageHandler, Filters, run_async
+from telegram.ext import CommandHandler, MessageHandler, Filters
 
 import tg_bot.modules.sql.blacklist_sql as sql
 from tg_bot import dispatcher, CallbackContext, LOGGER

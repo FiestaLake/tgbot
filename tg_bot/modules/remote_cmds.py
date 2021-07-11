@@ -1,16 +1,14 @@
-import html
-from typing import Optional, List
+from typing import Optional
 
-from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup, ChatPermissions
-from telegram.error import BadRequest
-from telegram.ext import run_async, CommandHandler, Filters
+from telegram import Chat, Update, ParseMode, ChatPermissions
+from telegram.error import BadRequest, TelegramError
+from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import mention_html
 
 from tg_bot import dispatcher, CallbackContext, BAN_STICKER, OWNER_ID, LOGGER
-from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_ban_protected, can_restrict, \
-    is_user_admin, is_user_in_chat, is_bot_admin
+from tg_bot.modules.helper_funcs.chat_status import bot_admin, is_user_ban_protected, \
+     is_user_in_chat, is_bot_admin
 from tg_bot.modules.helper_funcs.extraction import extract_user_and_text
-from tg_bot.modules.helper_funcs.string_handling import extract_time
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 
 RBAN_ERRORS = {

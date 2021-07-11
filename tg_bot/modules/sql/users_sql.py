@@ -1,6 +1,6 @@
 import threading
 
-from sqlalchemy import Column, Integer, BigInteger, UnicodeText, String, ForeignKey, UniqueConstraint, func
+from sqlalchemy import Column, BigInteger, UnicodeText, String, ForeignKey, UniqueConstraint, func
 
 from tg_bot import dispatcher
 from tg_bot.modules.sql import BASE, SESSION

@@ -40,7 +40,7 @@ def extract_multiple_users(message: Message, args: List[str]):
 
 
 def extract_user_and_text(message: Message,
-                          args: List[str]) -> (Optional[int], Optional[str]):
+                          args: List[str]) -> tuple('int, str'):
     prev_message = message.reply_to_message
     split_text = message.text.split(None, 1)
 

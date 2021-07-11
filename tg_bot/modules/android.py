@@ -1,13 +1,13 @@
-import re, html, time
+import time
+
 from bs4 import BeautifulSoup
 from requests import get
 from yaml import load, Loader
-from telegram import Message, Update, Bot, User, Chat, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.error import BadRequest
-from telegram.ext import run_async
-from telegram.utils.helpers import escape_markdown, mention_html
 
-from tg_bot import dispatcher, updater, CallbackContext
+from telegram import Update, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.error import BadRequest
+
+from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.github import getphh
 

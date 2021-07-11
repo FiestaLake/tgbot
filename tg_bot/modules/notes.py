@@ -1,13 +1,12 @@
 import re
 from time import sleep
 from io import BytesIO
-from typing import Optional, List
+from typing import Optional
 
 from telegram import MAX_MESSAGE_LENGTH, ParseMode, InlineKeyboardMarkup
-from telegram import Message, Update, Bot, Chat, User
+from telegram import Message, Update, Chat, User
 from telegram.error import BadRequest
 from telegram.ext import CommandHandler, RegexHandler, Filters
-from telegram.ext.dispatcher import run_async
 from telegram.utils.helpers import escape_markdown
 
 import tg_bot.modules.sql.notes_sql as sql

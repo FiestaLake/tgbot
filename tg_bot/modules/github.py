@@ -1,14 +1,10 @@
-import html
-from typing import Optional, List
-
-from telegram.ext import CommandHandler, run_async, Filters, RegexHandler
-from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardMarkup, MAX_MESSAGE_LENGTH
+from telegram.ext import CommandHandler, RegexHandler
+from telegram import Update, ParseMode, MAX_MESSAGE_LENGTH
 
 import tg_bot.modules.helper_funcs.git_api as api
 import tg_bot.modules.sql.github_sql as sql
 
-from tg_bot import dispatcher, CallbackContext, OWNER_ID, LOGGER, SUDO_USERS, SUPPORT_USERS
-from tg_bot.modules.helper_funcs.filters import CustomFilters
+from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.helper_funcs.chat_status import user_admin
 from tg_bot.modules.disable import DisableAbleCommandHandler
 

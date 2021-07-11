@@ -1,6 +1,4 @@
-import logging
-import os
-import sys
+import logging, os, sys
 
 import telegram.ext as tg
 

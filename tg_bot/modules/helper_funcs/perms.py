@@ -1,4 +1,4 @@
-from telegram import ChatMember, Update
+from telegram import Update
 from tg_bot import SUDO_USERS
 
 ADMIN_PERMS = [

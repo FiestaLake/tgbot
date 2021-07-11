@@ -1,19 +1,17 @@
 import html
-from typing import Optional, List
+from typing import Optional
 
-import telegram.ext as tg
-from telegram import Message, Chat, Update, Bot, ParseMode, User, MessageEntity, ChatPermissions
+from telegram import Message, Chat, Update, ParseMode, User, MessageEntity, ChatPermissions
 from telegram import TelegramError
 from telegram.error import BadRequest
-from telegram.ext import MessageHandler, Filters
-from telegram.ext.dispatcher import run_async
+from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram.utils.helpers import mention_html
 
 import tg_bot.modules.sql.locks_sql as sql
 from tg_bot import dispatcher, CallbackContext, SUDO_USERS, LOGGER
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot.modules.helper_funcs.chat_status import can_delete, is_user_admin, user_not_admin, user_admin, \
-    bot_can_delete, is_bot_admin, is_user_in_chat
+    bot_can_delete, is_bot_admin
 from tg_bot.modules.helper_funcs.filters import CustomFilters
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import users_sql
@@ -76,7 +74,7 @@ PERM_GROUP = 1
 REST_GROUP = 2
 
 
-class CustomCommandHandler(tg.CommandHandler):
+class CustomCommandHandler(CommandHandler):
     def __init__(self, command, callback, **kwargs):
         super().__init__(command, callback, **kwargs)
 
@@ -317,6 +315,7 @@ def del_lockables(update: Update, context: CallbackContext):
 
 @user_not_admin
 def rest_handler(update: Update, context: CallbackContext):
+    bot = context.Bot
     msg = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user

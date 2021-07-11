@@ -1,12 +1,11 @@
 import html
 import re
-from typing import Optional, List
+from typing import Optional
 
-import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, User, CallbackQuery
-from telegram import Message, Chat, Update, Bot
+from telegram import Message, Chat, Update, MAX_MESSAGE_LENGTH
 from telegram.error import BadRequest
-from telegram.ext import CommandHandler, run_async, DispatcherHandlerStop, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import CommandHandler, DispatcherHandlerStop, MessageHandler, Filters, CallbackQueryHandler
 from telegram.utils.helpers import mention_html
 
 from tg_bot import dispatcher, CallbackContext, BAN_STICKER, SUDO_USERS
@@ -356,7 +355,7 @@ def list_warn_filters(update: Update, context: CallbackContext):
     filter_list = CURRENT_WARNING_FILTER_STRING
     for keyword in all_handlers:
         entry = " - {}\n".format(html.escape(keyword))
-        if len(entry) + len(filter_list) > telegram.MAX_MESSAGE_LENGTH:
+        if len(entry) + len(filter_list) > MAX_MESSAGE_LENGTH:
             update.effective_message.reply_text(filter_list,
                                                 parse_mode=ParseMode.HTML)
             filter_list = entry

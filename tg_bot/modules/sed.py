@@ -1,9 +1,7 @@
 import re
 import sre_constants
 
-import telegram
-from telegram import Update, Bot
-from telegram.ext import run_async
+from telegram import Update, MAX_MESSAGE_LENGTH
 
 from tg_bot import dispatcher, CallbackContext, LOGGER, OWNER_ID, SUDO_USERS, SUPPORT_USERS
 from tg_bot.modules.disable import DisableAbleRegexHandler
@@ -98,7 +96,7 @@ def sed(update: Update, context: CallbackContext):
             return
 
         # empty string errors -_-
-        if len(text) >= telegram.MAX_MESSAGE_LENGTH:
+        if len(text) >= MAX_MESSAGE_LENGTH:
             update.effective_message.reply_text(
                 "The result of the sed command was too long for \
                                                  telegram!")

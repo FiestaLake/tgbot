@@ -2,7 +2,7 @@ import html, random
 
 from typing import Optional
 
-from telegram import Message, Chat, Update, Bot, MessageEntity, ParseMode, Location
+from telegram import Message, Chat, Update, MessageEntity, ParseMode, Location
 from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import escape_markdown, mention_html
 

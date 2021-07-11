@@ -1,8 +1,7 @@
 import os
-from telegram import Message, Chat, Update, Bot
+
+from telegram import Update
 from telegram import ParseMode
-from telegram.ext import CommandHandler, run_async
-from telegram.utils.helpers import escape_markdown
 
 from tg_bot import dispatcher, CallbackContext
 from tg_bot.modules.disable import DisableAbleCommandHandler

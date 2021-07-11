@@ -2,11 +2,9 @@ from io import BytesIO
 from time import sleep
 from typing import Optional
 
-from telegram import TelegramError, Chat, Message
-from telegram import Update, Bot
+from telegram import TelegramError, Chat, Message, Update
 from telegram.error import BadRequest
 from telegram.ext import MessageHandler, Filters, CommandHandler
-from telegram.ext.dispatcher import run_async
 
 import tg_bot.modules.sql.users_sql as sql
 from tg_bot import dispatcher, CallbackContext, OWNER_ID, LOGGER

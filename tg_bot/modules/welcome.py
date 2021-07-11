@@ -1,13 +1,11 @@
-import html, time
-import re
-import asyncio
-from typing import Optional, List
+import html, time, re
+from typing import Optional
 
 import tg_bot.modules.helper_funcs.cas_api as cas
 
-from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ChatMember, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity, ChatPermissions
+from telegram import Message, Chat, Update, Bot, User, CallbackQuery, ParseMode, InlineKeyboardMarkup, InlineKeyboardButton, MessageEntity, ChatPermissions
 from telegram.error import BadRequest
-from telegram.ext import MessageHandler, Filters, CommandHandler, run_async, CallbackQueryHandler
+from telegram.ext import MessageHandler, Filters, CommandHandler, CallbackQueryHandler
 from telegram.utils.helpers import mention_markdown, mention_html, escape_markdown
 
 import tg_bot.modules.sql.welcome_sql as sql

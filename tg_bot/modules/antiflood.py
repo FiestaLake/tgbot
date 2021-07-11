@@ -1,13 +1,13 @@
 import html
-from typing import Optional, List
+from typing import Optional
 
-from telegram import Message, Chat, Update, Bot, User, ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Message, Chat, Update, User, ParseMode
 from telegram.error import BadRequest
-from telegram.ext import Filters, MessageHandler, CommandHandler, run_async
+from telegram.ext import Filters, MessageHandler, CommandHandler
 from telegram.utils.helpers import mention_html
 
 from tg_bot import dispatcher, CallbackContext
-from tg_bot.modules.helper_funcs.chat_status import is_user_admin, user_admin, can_restrict, can_delete
+from tg_bot.modules.helper_funcs.chat_status import is_user_admin, user_admin, can_restrict
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import antiflood_sql as sql
 from tg_bot.modules.helper_funcs.perms import check_perms

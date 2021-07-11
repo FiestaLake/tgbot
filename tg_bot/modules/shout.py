@@ -1,5 +1,4 @@
-from telegram import Update, Bot
-from telegram.ext import run_async
+from telegram import Update
 
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot import dispatcher, CallbackContext

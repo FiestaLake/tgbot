@@ -1,10 +1,9 @@
-from telegram import Update, Bot
-from telegram.ext import run_async
+from requests import get
+
+from telegram import Update
 
 from tg_bot.modules.disable import DisableAbleCommandHandler
 from tg_bot import dispatcher, CallbackContext
-
-from requests import get
 
 
 def ud(update: Update, context: CallbackContext):
