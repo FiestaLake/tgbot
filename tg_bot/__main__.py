@@ -181,6 +181,7 @@ def error_callback(update, context):
 
 def help_button(update: Update, context: CallbackContext):
     bot = context.bot
+    chat = update.effective_chat
     query = update.callback_query
     mod_match = re.match(r"help_module\((.+?)\)", query.data)
     prev_match = re.match(r"help_prev\((.+?)\)", query.data)
@@ -190,35 +191,67 @@ def help_button(update: Update, context: CallbackContext):
         if mod_match:
             module = mod_match.group(1)
             text = HELPABLE[module].__help__
-            query.message.edit_text(text=text,
-                                    parse_mode=ParseMode.MARKDOWN,
-                                    reply_markup=InlineKeyboardMarkup([[
-                                        InlineKeyboardButton(
-                                            text="Back",
-                                            callback_data="help_back")
-                                    ]]))
+            bot.sendMessage(text=text, chat_id=chat.id,
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=InlineKeyboardMarkup([[
+                            InlineKeyboardButton(
+                                    text="Back",
+                                    callback_data="help_back")
+                            ]]))
+            try:
+                bot.deleteMessage(
+                chat_id=chat.id,
+                message_id=update.effective_message.message_id
+                )
+            except:
+                pass # Sometimes cannot delete old messages.
 
         elif prev_match:
             curr_page = int(prev_match.group(1))
-            query.message.edit_text(HELP_STRINGS,
-                                    parse_mode=ParseMode.MARKDOWN,
-                                    reply_markup=InlineKeyboardMarkup(
-                                        paginate_modules(
-                                            curr_page - 1, HELPABLE, "help")))
+            bot.sendMessage(text=HELP_STRINGS, chat_id=chat.id,
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=InlineKeyboardMarkup(
+                                             paginate_modules(
+                                             curr_page - 1, HELPABLE, "help"))
+                            )
+            try:
+                bot.deleteMessage(
+                chat_id=chat.id,
+                message_id=update.effective_message.message_id
+                )
+            except:
+                pass # Sometimes cannot delete old messages.
 
         elif next_match:
             next_page = int(next_match.group(1))
-            query.message.edit_text(HELP_STRINGS,
-                                    parse_mode=ParseMode.MARKDOWN,
-                                    reply_markup=InlineKeyboardMarkup(
-                                        paginate_modules(
-                                            next_page + 1, HELPABLE, "help")))
+            bot.sendMessage(text=HELP_STRINGS, chat_id=chat.id,
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=InlineKeyboardMarkup(
+                                             paginate_modules(
+                                             next_page + 1, HELPABLE, "help"))
+                            )
+            try: 
+                bot.deleteMessage(
+                chat_id=chat.id,
+                message_id=update.effective_message.message_id
+                )
+            except:
+                pass # Sometimes cannot delete old messages.
 
         elif back_match:
-            query.message.edit_text(text=HELP_STRINGS,
-                                    parse_mode=ParseMode.MARKDOWN,
-                                    reply_markup=InlineKeyboardMarkup(
-                                        paginate_modules(0, HELPABLE, "help")))
+            bot.sendMessage(text=HELP_STRINGS, chat_id=chat.id,
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=InlineKeyboardMarkup(
+                                             paginate_modules(
+                                             0, HELPABLE, "help"))
+                            )
+            try:
+                bot.deleteMessage(
+                chat_id=chat.id,
+                message_id=update.effective_message.message_id
+                )
+            except:
+                pass # Sometimes cannot delete old messages.
 
         # ensure no spinny white circle
         bot.answer_callback_query(query.id)
