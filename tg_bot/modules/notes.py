@@ -17,8 +17,8 @@ from tg_bot.modules.helper_funcs.misc import build_keyboard, revert_buttons
 from tg_bot.modules.helper_funcs.msg_types import get_note_type
 
 warning = """
-A conflict happened between notename '{notename}' and noteid '{notename}' !
-Choosing notename '{notename}' ...
+A conflict happened between notename '{notename}' and noteid '{notename}'.
+Choosing notename '{notename}'...
 Please change a name of the note later!
 """
 
@@ -46,17 +46,19 @@ def get(bot, update, notename, show_none=True, no_format=False):
 
     if notename.isnumeric():
         check = sql.get_note(chat_id, notename)
+        # If check == true, it means that notename and noteid conflicts each other
         if check:
             message.reply_text(warning.format(notename=notename))
+        # If check == false, it means that we need to search notename for given noteid
         else:
             note_list = sql.get_all_chat_notes(chat_id)
             for note in note_list:
                 count = count + 1
                 if str(count) == notename:
                     notename = note.name
-                    break
+                    break # As it can be overwritten later
 
-    note = sql.get_note(chat_id, notename)  # Removed lower() for compatibility
+    note = sql.get_note(chat_id, notename) # Removed lower() for compatibility
 
     if note:
         # If we're replying to a message, reply to that message (unless it's an error)
@@ -240,16 +242,18 @@ def clear(update: Update, context: CallbackContext):
     
     if notename.isnumeric():
         check = sql.get_note(chat_id, notename)
+        # If check == true, it means that notename and noteid conflicts each other
         if check:
             update.effective_message.reply_text(
                 warning.format(notename=notename))
+        # If check == false, it means that we need to search notename for given noteid
         else:
             note_list = sql.get_all_chat_notes(chat_id)
             for note in note_list:
                 count = count + 1
                 if str(count) == notename:
                     notename = note.name
-                    break
+                    break # As it can be overwritten later
 
     if sql.rm_note(chat_id, notename):
         update.effective_message.reply_text(
