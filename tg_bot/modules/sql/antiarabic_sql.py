@@ -31,10 +31,10 @@ def chat_antiarabic(chat_id: Union[str, int]) -> bool:
             return chat_setting.antiarabic
         return False
     except:
-        return False
         LOGGER.warning("Unknown errors happened while querying" +
                        "chat_antiarabic using sql.\n" +
                        "Chat ID: %s", chat_id)
+        return False
     finally:
         SESSION.close()
 
