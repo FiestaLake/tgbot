@@ -9,7 +9,9 @@ MESSAGE_2 = "I saw the seven angels who stood before God, and to them were given
 MESSAGE_3 = "And another angel came and stood at the altar, having a golden censer to which was given too much insence."
 MESSAGE_4 = "And the smoke of the incense, which came with the prayers of the saints, ascended up before God."
 MESSAGE_5 = "And the angel took the censer, and filled it with fire of the altar, and casted it into the earth, and there were voices, and thunderings, and lightnings, and an earthquake."
-MESSAGE_6 = "The seven angels which had the seven trumpets prepared themselves to sound."
+MESSAGE_6 = (
+    "The seven angels which had the seven trumpets prepared themselves to sound."
+)
 MESSAGE_7 = "And I heard a great voice out of the temple saying to the seven angels, Go your ways, and pour out the vials of the wrath of God upon the earth."
 
 
@@ -49,8 +51,7 @@ __help__ = ""
 
 __mod_name__ = "Leave"
 
-LEAVE_HANDLER = CommandHandler("leave",
-                               leave,
-                               run_async=True,
-                               filters=Filters.user(OWNER_ID))
+LEAVE_HANDLER = CommandHandler(
+    "leave", leave, run_async=True, filters=Filters.user(OWNER_ID)
+)
 dispatcher.add_handler(LEAVE_HANDLER)

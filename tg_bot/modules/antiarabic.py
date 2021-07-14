@@ -4,7 +4,11 @@ from telegram import Message, Chat, Update, User, ParseMode
 from telegram.ext import CommandHandler, MessageHandler, Filters
 
 from tg_bot import dispatcher, CallbackContext
-from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin, can_delete
+from tg_bot.modules.helper_funcs.chat_status import (
+    user_not_admin,
+    user_admin,
+    can_delete,
+)
 from tg_bot.modules.helper_funcs.extraction import extract_text
 from tg_bot.modules.sql import antiarabic_sql as sql
 
@@ -25,7 +29,8 @@ def antiarabic_setting(update: Update, context: CallbackContext):
                 sql.set_chat_setting(chat.id, True)
                 msg.reply_text(
                     "Turned on AntiArabic! Messages sent by any non-admin which contains arabic text "
-                    "will be deleted.")
+                    "will be deleted."
+                )
 
             elif args[0] in ("no", "off"):
                 sql.set_chat_setting(chat.id, False)
@@ -33,9 +38,12 @@ def antiarabic_setting(update: Update, context: CallbackContext):
                     "Turned off AntiArabic! Messages containing arabic text won't be deleted."
                 )
         else:
-            msg.reply_text("This chat's current setting is: `{}`".format(
-                sql.chat_antiarabic(chat.id)),
-                           parse_mode=ParseMode.MARKDOWN)
+            msg.reply_text(
+                "This chat's current setting is: `{}`".format(
+                    sql.chat_antiarabic(chat.id)
+                ),
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
 
 @user_not_admin
@@ -58,13 +66,17 @@ def antiarabic(update: Update, context: CallbackContext):
 
         if chat.type != chat.PRIVATE:
             for c in to_match:
-                if ('\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F'
-                        or '\u08A0' <= c <= '\u08FF' or '\uFB50' <= c <= '\uFDFF'
-                        or '\uFE70' <= c <= '\uFEFF'
-                        or '\U00010E60' <= c <= '\U00010E7F'
-                        or '\U0001EE00' <= c <= '\U0001EEFF'):
-                        update.effective_message.delete()
-                        return ""
+                if (
+                    "\u0600" <= c <= "\u06FF"
+                    or "\u0750" <= c <= "\u077F"
+                    or "\u08A0" <= c <= "\u08FF"
+                    or "\uFB50" <= c <= "\uFDFF"
+                    or "\uFE70" <= c <= "\uFEFF"
+                    or "\U00010E60" <= c <= "\U00010E7F"
+                    or "\U0001EE00" <= c <= "\U0001EEFF"
+                ):
+                    update.effective_message.delete()
+                    return ""
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -73,7 +85,8 @@ def __migrate__(old_chat_id, new_chat_id):
 
 def __chat_settings__(chat_id, user_id):
     return "This chat is setup to delete messages containing Arabic: `{}`".format(
-        sql.chat_antiarabic(chat_id))
+        sql.chat_antiarabic(chat_id)
+    )
 
 
 __mod_name__ = "AntiArabic"
@@ -96,14 +109,13 @@ AntiArabic module is used to delete messages containing characters from one of t
  - /antiarabic: get status of AntiArabict module in chat
 """
 
-SETTING_HANDLER = CommandHandler("antiarabic",
-                                 antiarabic_setting,
-                                 run_async=True)
+SETTING_HANDLER = CommandHandler("antiarabic", antiarabic_setting, run_async=True)
 ANTI_ARABIC = MessageHandler(
     (Filters.text | Filters.command | Filters.sticker | Filters.photo)
     & Filters.chat_type.groups,
     antiarabic,
-    run_async=True)
+    run_async=True,
+)
 
 dispatcher.add_handler(SETTING_HANDLER)
 dispatcher.add_handler(ANTI_ARABIC, group=ANTIARABIC_GROUPS)

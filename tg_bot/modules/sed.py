@@ -3,15 +3,25 @@ import sre_constants
 
 from telegram import Update, MAX_MESSAGE_LENGTH
 
-from tg_bot import dispatcher, CallbackContext, LOGGER, OWNER_ID, SUDO_USERS, SUPPORT_USERS
+from tg_bot import (
+    dispatcher,
+    CallbackContext,
+    LOGGER,
+    OWNER_ID,
+    SUDO_USERS,
+    SUPPORT_USERS,
+)
 from tg_bot.modules.disable import DisableAbleRegexHandler
 
 DELIMITERS = ("/", ":", "|", "_")
 
 
 def separate_sed(sed_string):
-    if len(sed_string) >= 3 and sed_string[
-            1] in DELIMITERS and sed_string.count(sed_string[1]) >= 2:
+    if (
+        len(sed_string) >= 3
+        and sed_string[1] in DELIMITERS
+        and sed_string.count(sed_string[1]) >= 2
+    ):
         delim = sed_string[1]
         start = counter = 2
         while counter < len(sed_string):
@@ -30,9 +40,12 @@ def separate_sed(sed_string):
             return None
 
         while counter < len(sed_string):
-            if sed_string[counter] == "\\" and counter + 1 < len(
-                    sed_string) and sed_string[counter + 1] == delim:
-                sed_string = sed_string[:counter] + sed_string[counter + 1:]
+            if (
+                sed_string[counter] == "\\"
+                and counter + 1 < len(sed_string)
+                and sed_string[counter + 1] == delim
+            ):
+                sed_string = sed_string[:counter] + sed_string[counter + 1 :]
 
             elif sed_string[counter] == delim:
                 replace_with = sed_string[start:counter]
@@ -51,7 +64,11 @@ def separate_sed(sed_string):
 
 def sed(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
-    if user_id is not OWNER_ID and user_id not in SUDO_USERS and user_id not in SUPPORT_USERS:
+    if (
+        user_id is not OWNER_ID
+        and user_id not in SUDO_USERS
+        and user_id not in SUPPORT_USERS
+    ):
         return
     sed_result = separate_sed(update.effective_message.text)
     if sed_result and update.effective_message.reply_to_message:
@@ -66,8 +83,8 @@ def sed(update: Update, context: CallbackContext):
 
         if not repl:
             update.effective_message.reply_to_message.reply_text(
-                "You're trying to replace... "
-                "nothing with something?")
+                "You're trying to replace... " "nothing with something?"
+            )
             return
 
         try:
@@ -76,51 +93,50 @@ def sed(update: Update, context: CallbackContext):
             if check and check.group(0).lower() == to_fix.lower():
                 update.effective_message.reply_to_message.reply_text(
                     "There has been an unspecified error".format(
-                        update.effective_user.first_name))
+                        update.effective_user.first_name
+                    )
+                )
                 return
 
-            if 'i' in flags and 'g' in flags:
+            if "i" in flags and "g" in flags:
                 text = re.sub(repl, repl_with, to_fix, flags=re.I).strip()
-            elif 'i' in flags:
-                text = re.sub(repl, repl_with, to_fix, count=1,
-                              flags=re.I).strip()
-            elif 'g' in flags:
+            elif "i" in flags:
+                text = re.sub(repl, repl_with, to_fix, count=1, flags=re.I).strip()
+            elif "g" in flags:
                 text = re.sub(repl, repl_with, to_fix).strip()
             else:
                 text = re.sub(repl, repl_with, to_fix, count=1).strip()
         except sre_constants.error:
             LOGGER.warning(update.effective_message.text)
             LOGGER.exception("SRE constant error")
-            update.effective_message.reply_text(
-                "Do you even sed? Apparently not.")
+            update.effective_message.reply_text("Do you even sed? Apparently not.")
             return
 
         # empty string errors -_-
         if len(text) >= MAX_MESSAGE_LENGTH:
             update.effective_message.reply_text(
                 "The result of the sed command was too long for \
-                                                 telegram!")
+                                                 telegram!"
+            )
         elif text:
             update.effective_message.reply_to_message.reply_text(text)
 
 
-#__help__ = """
+# __help__ = """
 # - s/<text1>/<text2>(/<flag>): Reply to a message with this to perform a sed operation on that message, replacing all \
-#occurrences of 'text1' with 'text2'. Flags are optional, and currently include 'i' for ignore case, 'g' for global, \
-#or nothing. Delimiters include `/`, `_`, `|`, and `:`. Text grouping is supported. The resulting message cannot be \
-#larger than {}.
+# occurrences of 'text1' with 'text2'. Flags are optional, and currently include 'i' for ignore case, 'g' for global, \
+# or nothing. Delimiters include `/`, `_`, `|`, and `:`. Text grouping is supported. The resulting message cannot be \
+# larger than {}.
 #
-#*Reminder:* Sed uses some special characters to make matching easier, such as these: `+*.?\\`
-#If you want to use these characters, make sure you escape them!
-#eg: \\?.
-#""".format(telegram.MAX_MESSAGE_LENGTH)
+# *Reminder:* Sed uses some special characters to make matching easier, such as these: `+*.?\\`
+# If you want to use these characters, make sure you escape them!
+# eg: \\?.
+# """.format(telegram.MAX_MESSAGE_LENGTH)
 
-#__mod_name__ = "Sed/Regex"
+# __mod_name__ = "Sed/Regex"
 
-SED_HANDLER = DisableAbleRegexHandler(r's([{}]).*?\1.*'.format(
-    "".join(DELIMITERS)),
-                                      sed,
-                                      friendly="sed",
-                                      run_async=True)
+SED_HANDLER = DisableAbleRegexHandler(
+    r"s([{}]).*?\1.*".format("".join(DELIMITERS)), sed, friendly="sed", run_async=True
+)
 
 dispatcher.add_handler(SED_HANDLER)

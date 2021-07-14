@@ -7,7 +7,12 @@ from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import mention_html
 
 from tg_bot import dispatcher, CallbackContext, LOGGER
-from tg_bot.modules.helper_funcs.chat_status import bot_admin, user_admin, is_user_admin, can_restrict
+from tg_bot.modules.helper_funcs.chat_status import (
+    bot_admin,
+    user_admin,
+    is_user_admin,
+    can_restrict,
+)
 from tg_bot.modules.helper_funcs.extraction import extract_user, extract_user_and_text
 from tg_bot.modules.helper_funcs.string_handling import extract_time
 from tg_bot.modules.log_channel import loggable
@@ -44,16 +49,19 @@ def mute(update: Update, context: CallbackContext) -> str:
 
         elif member.can_send_messages is None or member.can_send_messages:
             bot.restrict_chat_member(
-                chat.id,
-                user_id,
-                permissions=ChatPermissions(can_send_messages=False))
+                chat.id, user_id, permissions=ChatPermissions(can_send_messages=False)
+            )
             message.reply_text("Muted!")
-            return "<b>{}:</b>" \
-                   "\n#MUTE" \
-                   "\n<b>Admin:</b> {}" \
-                   "\n<b>User:</b> {}".format(html.escape(chat.title),
-                                              mention_html(user.id, user.first_name),
-                                              mention_html(member.user.id, member.user.first_name))
+            return (
+                "<b>{}:</b>"
+                "\n#MUTE"
+                "\n<b>Admin:</b> {}"
+                "\n<b>User:</b> {}".format(
+                    html.escape(chat.title),
+                    mention_html(user.id, user.first_name),
+                    mention_html(member.user.id, member.user.first_name),
+                )
+            )
 
         else:
             message.reply_text("This user is already muted!")
@@ -85,34 +93,45 @@ def unmute(update: Update, context: CallbackContext) -> str:
 
     if member:
         if is_user_admin(chat, user_id, member=member):
-            message.reply_text(
-                "This is an admin, what do you expect me to do?")
+            message.reply_text("This is an admin, what do you expect me to do?")
             return ""
 
-        elif member.status != 'kicked' and member.status != 'left':
-            if member.can_send_messages and member.can_send_media_messages \
-                    and member.can_send_other_messages and member.can_add_web_page_previews:
+        elif member.status != "kicked" and member.status != "left":
+            if (
+                member.can_send_messages
+                and member.can_send_media_messages
+                and member.can_send_other_messages
+                and member.can_add_web_page_previews
+            ):
                 message.reply_text("This user already has the right to speak.")
                 return ""
             else:
-                bot.restrict_chat_member(chat.id,
-                                         int(user_id),
-                                         permissions=ChatPermissions(
-                                             can_send_messages=True,
-                                             can_send_media_messages=True,
-                                             can_send_other_messages=True,
-                                             can_add_web_page_previews=True))
+                bot.restrict_chat_member(
+                    chat.id,
+                    int(user_id),
+                    permissions=ChatPermissions(
+                        can_send_messages=True,
+                        can_send_media_messages=True,
+                        can_send_other_messages=True,
+                        can_add_web_page_previews=True,
+                    ),
+                )
                 message.reply_text("Unmuted!")
-                return "<b>{}:</b>" \
-                       "\n#UNMUTE" \
-                       "\n<b>Admin:</b> {}" \
-                       "\n<b>User:</b> {}".format(html.escape(chat.title),
-                                                  mention_html(user.id, user.first_name),
-                                                  mention_html(member.user.id, member.user.first_name))
+                return (
+                    "<b>{}:</b>"
+                    "\n#UNMUTE"
+                    "\n<b>Admin:</b> {}"
+                    "\n<b>User:</b> {}".format(
+                        html.escape(chat.title),
+                        mention_html(user.id, user.first_name),
+                        mention_html(member.user.id, member.user.first_name),
+                    )
+                )
     else:
         message.reply_text(
             "This user isn't even in the chat, unmuting them won't make them talk more than they "
-            "already do!")
+            "already do!"
+        )
 
     return ""
 
@@ -153,8 +172,7 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
         return ""
 
     if not reason:
-        message.reply_text(
-            "You haven't specified a time to mute this user for!")
+        message.reply_text("You haven't specified a time to mute this user for!")
         return ""
 
     split_reason = reason.split(None, 1)
@@ -170,12 +188,18 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
     if not mutetime:
         return ""
 
-    log = "<b>{}:</b>" \
-          "\n#TEMP MUTED" \
-          "\n<b>Admin:</b> {}" \
-          "\n<b>User:</b> {}" \
-          "\n<b>Time:</b> {}".format(html.escape(chat.title), mention_html(user.id, user.first_name),
-                                     mention_html(member.user.id, member.user.first_name), time_val)
+    log = (
+        "<b>{}:</b>"
+        "\n#TEMP MUTED"
+        "\n<b>Admin:</b> {}"
+        "\n<b>User:</b> {}"
+        "\n<b>Time:</b> {}".format(
+            html.escape(chat.title),
+            mention_html(user.id, user.first_name),
+            mention_html(member.user.id, member.user.first_name),
+            time_val,
+        )
+    )
     if reason:
         log += "\n<b>Reason:</b> {}".format(reason)
 
@@ -185,7 +209,8 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
                 chat.id,
                 user_id,
                 until_date=mutetime,
-                permissions=ChatPermissions(can_send_messages=False))
+                permissions=ChatPermissions(can_send_messages=False),
+            )
             message.reply_text("Muted for {}!".format(time_val))
             return log
         else:
@@ -198,8 +223,13 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
             return log
         else:
             LOGGER.warning(update)
-            LOGGER.exception("ERROR muting user %s in chat %s (%s) due to %s",
-                             user_id, chat.title, chat.id, excp.message)
+            LOGGER.exception(
+                "ERROR muting user %s in chat %s (%s) due to %s",
+                user_id,
+                chat.title,
+                chat.id,
+                excp.message,
+            )
             message.reply_text("Well damn, I can't mute that user.")
 
     return ""
@@ -221,18 +251,15 @@ An example of temporarily mute someone:
 
 __mod_name__ = "Muting"
 
-MUTE_HANDLER = CommandHandler("mute",
-                              mute,
-                              run_async=True,
-                              filters=Filters.chat_type.groups)
-UNMUTE_HANDLER = CommandHandler("unmute",
-                                unmute,
-                                run_async=True,
-                                filters=Filters.chat_type.groups)
-TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"],
-                                  temp_mute,
-                                  run_async=True,
-                                  filters=Filters.chat_type.groups)
+MUTE_HANDLER = CommandHandler(
+    "mute", mute, run_async=True, filters=Filters.chat_type.groups
+)
+UNMUTE_HANDLER = CommandHandler(
+    "unmute", unmute, run_async=True, filters=Filters.chat_type.groups
+)
+TEMPMUTE_HANDLER = CommandHandler(
+    ["tmute", "tempmute"], temp_mute, run_async=True, filters=Filters.chat_type.groups
+)
 
 dispatcher.add_handler(MUTE_HANDLER)
 dispatcher.add_handler(UNMUTE_HANDLER)

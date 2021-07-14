@@ -1,6 +1,6 @@
 import telegram.ext as tg
 
-CMD_STARTERS = ('/', '!')
+CMD_STARTERS = ("/", "!")
 
 
 class CustomCommandHandler(tg.CommandHandler):

@@ -6,13 +6,13 @@ DL_DIR = "./csvExports"
 
 
 def get_user_data(user_id):
-    with requests.request('GET', CAS_QUERY_URL + str(user_id)) as userdata_raw:
+    with requests.request("GET", CAS_QUERY_URL + str(user_id)) as userdata_raw:
         userdata = json.loads(userdata_raw.text)
         return userdata
 
 
 def isbanned(userdata):
-    return userdata['ok']
+    return userdata["ok"]
 
 
 def banchecker(user_id):
@@ -26,7 +26,7 @@ def vercheck() -> str:
 def offenses(user_id):
     userdata = get_user_data(user_id)
     try:
-        offenses = userdata['result']['offenses']
+        offenses = userdata["result"]["offenses"]
         return str(offenses)
     except:
         return None
@@ -35,9 +35,10 @@ def offenses(user_id):
 def timeadded(user_id):
     userdata = get_user_data(user_id)
     try:
-        timeEp = userdata['result']['time_added']
+        timeEp = userdata["result"]["time_added"]
         timeHuman = datetime.datetime.utcfromtimestamp(timeEp).strftime(
-            '%H:%M:%S, %d-%m-%Y')
+            "%H:%M:%S, %d-%m-%Y"
+        )
         return timeHuman
     except:
         return None

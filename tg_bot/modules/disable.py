@@ -41,8 +41,9 @@ if is_module_loaded(FILENAME):
             message = update.effective_message
             if super().check_update(update):
                 # Should be safe since check_update passed.
-                command = update.effective_message.text_html.split(
-                    None, 1)[0][1:].split('@')[0]
+                command = update.effective_message.text_html.split(None, 1)[0][
+                    1:
+                ].split("@")[0]
 
                 # disabled, admincmd, user admin
                 if sql.is_command_disabled(chat.id, command):
@@ -68,9 +69,9 @@ if is_module_loaded(FILENAME):
 
         def check_update(self, update):
             chat = update.effective_chat
-            return super().check_update(
-                update) and not sql.is_command_disabled(
-                    chat.id, self.friendly)
+            return super().check_update(update) and not sql.is_command_disabled(
+                chat.id, self.friendly
+            )
 
     @user_admin
     def disable(update: Update, context: CallbackContext):
@@ -85,10 +86,10 @@ if is_module_loaded(FILENAME):
                 sql.disable_command(chat.id, disable_cmd)
                 update.effective_message.reply_text(
                     "Disabled the use of `{}`".format(disable_cmd),
-                    parse_mode=ParseMode.MARKDOWN)
+                    parse_mode=ParseMode.MARKDOWN,
+                )
             else:
-                update.effective_message.reply_text(
-                    "That command can't be disabled")
+                update.effective_message.reply_text("That command can't be disabled")
 
         else:
             update.effective_message.reply_text("What should I disable?")
@@ -105,7 +106,8 @@ if is_module_loaded(FILENAME):
             if sql.enable_command(chat.id, enable_cmd):
                 update.effective_message.reply_text(
                     "Enabled the use of `{}`".format(enable_cmd),
-                    parse_mode=ParseMode.MARKDOWN)
+                    parse_mode=ParseMode.MARKDOWN,
+                )
             else:
                 update.effective_message.reply_text("Is that even disabled?")
 
@@ -121,7 +123,8 @@ if is_module_loaded(FILENAME):
                 result += " - `{}`\n".format(escape_markdown(cmd))
             update.effective_message.reply_text(
                 "The following commands are toggleable:\n{}".format(result),
-                parse_mode=ParseMode.MARKDOWN)
+                parse_mode=ParseMode.MARKDOWN,
+            )
         else:
             update.effective_message.reply_text("No commands can be disabled.")
 
@@ -134,18 +137,19 @@ if is_module_loaded(FILENAME):
         result = ""
         for cmd in disabled:
             result += " - `{}`\n".format(escape_markdown(cmd))
-        return "The following commands are currently restricted:\n{}".format(
-            result)
+        return "The following commands are currently restricted:\n{}".format(result)
 
     def commands(update: Update, context: CallbackContext):
         bot = context.bot
         chat = update.effective_chat
-        update.effective_message.reply_text(build_curr_disabled(chat.id),
-                                            parse_mode=ParseMode.MARKDOWN)
+        update.effective_message.reply_text(
+            build_curr_disabled(chat.id), parse_mode=ParseMode.MARKDOWN
+        )
 
     def __stats__():
         return "{} disabled items, across {} chats.".format(
-            sql.num_disabled(), sql.num_chats())
+            sql.num_disabled(), sql.num_chats()
+        )
 
     def __migrate__(old_chat_id, new_chat_id):
         sql.migrate_chat(old_chat_id, new_chat_id)
@@ -170,22 +174,18 @@ It'll also allow you to autodelete them, stopping people from bluetexting.
  - /listcmds: list all possible toggleable commands
     """
 
-    DISABLE_HANDLER = CommandHandler("disable",
-                                     disable,
-                                     filters=Filters.chat_type.groups,
-                                     run_async=True)
-    ENABLE_HANDLER = CommandHandler("enable",
-                                    enable,
-                                    filters=Filters.chat_type.groups,
-                                    run_async=True)
-    COMMANDS_HANDLER = CommandHandler(["cmds", "disabled"],
-                                      commands,
-                                      filters=Filters.chat_type.groups,
-                                      run_async=True)
-    TOGGLE_HANDLER = CommandHandler("listcmds",
-                                    list_cmds,
-                                    filters=Filters.chat_type.groups,
-                                    run_async=True)
+    DISABLE_HANDLER = CommandHandler(
+        "disable", disable, filters=Filters.chat_type.groups, run_async=True
+    )
+    ENABLE_HANDLER = CommandHandler(
+        "enable", enable, filters=Filters.chat_type.groups, run_async=True
+    )
+    COMMANDS_HANDLER = CommandHandler(
+        ["cmds", "disabled"], commands, filters=Filters.chat_type.groups, run_async=True
+    )
+    TOGGLE_HANDLER = CommandHandler(
+        "listcmds", list_cmds, filters=Filters.chat_type.groups, run_async=True
+    )
 
     dispatcher.add_handler(DISABLE_HANDLER)
     dispatcher.add_handler(ENABLE_HANDLER)

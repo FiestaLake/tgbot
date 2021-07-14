@@ -27,12 +27,14 @@ def report_setting(update: Update, context: CallbackContext):
 
             elif args[0] in ("no", "off"):
                 sql.set_user_setting(chat.id, False)
-                msg.reply_text(
-                    "Turned off reporting! You wont get any reports.")
+                msg.reply_text("Turned off reporting! You wont get any reports.")
         else:
-            msg.reply_text("Your current report preference is: `{}`".format(
-                sql.user_should_report(chat.id)),
-                           parse_mode=ParseMode.MARKDOWN)
+            msg.reply_text(
+                "Your current report preference is: `{}`".format(
+                    sql.user_should_report(chat.id)
+                ),
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
     else:
         if len(args) >= 1:
@@ -40,7 +42,8 @@ def report_setting(update: Update, context: CallbackContext):
                 sql.set_chat_setting(chat.id, True)
                 msg.reply_text(
                     "Turned on reporting! Admins who have turned on reports will be notified when /report "
-                    "or @admin are called.")
+                    "or @admin are called."
+                )
 
             elif args[0] in ("no", "off"):
                 sql.set_chat_setting(chat.id, False)
@@ -48,9 +51,12 @@ def report_setting(update: Update, context: CallbackContext):
                     "Turned off reporting! No admins will be notified on /report or @admin."
                 )
         else:
-            msg.reply_text("This chat's current setting is: `{}`".format(
-                sql.chat_should_report(chat.id)),
-                           parse_mode=ParseMode.MARKDOWN)
+            msg.reply_text(
+                "This chat's current setting is: `{}`".format(
+                    sql.chat_should_report(chat.id)
+                ),
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
 
 @user_not_admin
@@ -79,7 +85,8 @@ def report(update: Update, context: CallbackContext) -> str:
         message.reply_text(
             f"Successfully reported [{reported_user.first_name}](tg://user?id={reported_user.id}) to admins! "
             + ping_list,
-            parse_mode=ParseMode.MARKDOWN)
+            parse_mode=ParseMode.MARKDOWN,
+        )
 
     return ""
 
@@ -90,12 +97,14 @@ def __migrate__(old_chat_id, new_chat_id):
 
 def __chat_settings__(chat_id, user_id):
     return "This chat is setup to send user reports to admins, via /report and @admin: `{}`".format(
-        sql.chat_should_report(chat_id))
+        sql.chat_should_report(chat_id)
+    )
 
 
 def __user_settings__(user_id):
     return "You receive reports from chats you're admin in: `{}`.\nToggle this with /reports in PM.".format(
-        sql.user_should_report(user_id))
+        sql.user_should_report(user_id)
+    )
 
 
 __mod_name__ = "Reporting"
@@ -124,10 +133,9 @@ Note that the report commands do not work when admins use them; or when used to 
 admins don't need to report, or be reported!
 """
 
-REPORT_HANDLER = CommandHandler("report",
-                                report,
-                                filters=Filters.chat_type.groups,
-                                run_async=True)
+REPORT_HANDLER = CommandHandler(
+    "report", report, filters=Filters.chat_type.groups, run_async=True
+)
 SETTING_HANDLER = CommandHandler("reports", report_setting, run_async=True)
 ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report, run_async=True)
 

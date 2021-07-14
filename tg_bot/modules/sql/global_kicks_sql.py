@@ -15,11 +15,7 @@ class GloballyKickedUsers(BASE):
         self.times = times
 
     def to_dict(self):
-        return {
-            "user_id": self.user_id,
-            "name": self.name,
-            "times": self.times
-        }
+        return {"user_id": self.user_id, "name": self.name, "times": self.times}
 
 
 GloballyKickedUsers.__table__.create(checkfirst=True)
@@ -67,9 +63,6 @@ def get_times(user_id):
 def __load_gkick_userid_list():
     global GKICK_LIST
     try:
-        GKICK_LIST = {
-            x.user_id
-            for x in SESSION.query(GloballyKickedUsers).all()
-        }
+        GKICK_LIST = {x.user_id for x in SESSION.query(GloballyKickedUsers).all()}
     finally:
         SESSION.close()

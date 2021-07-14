@@ -10,12 +10,11 @@ def ud(update: Update, context: CallbackContext):
     bot = context.bot
     try:
         message = update.effective_message
-        text = message.text[len('/ud '):]
-        results = get(
-            f'http://api.urbandictionary.com/v0/define?term={text}').json()
+        text = message.text[len("/ud ") :]
+        results = get(f"http://api.urbandictionary.com/v0/define?term={text}").json()
         reply_text = f'Word: {text}\nDefinition: {results["list"][0]["definition"]}'
     except IndexError:
-        reply_text = f'Word: {text}\nDefinition: 404 definition not found'
+        reply_text = f"Word: {text}\nDefinition: 404 definition not found"
     return message.reply_text(reply_text)
 
 

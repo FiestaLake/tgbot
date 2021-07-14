@@ -22,8 +22,7 @@ def get_note_type(msg: Message):
     content = None
     text = ""
     raw_text = msg.text or msg.caption
-    args = raw_text.split(None,
-                          2)  # use python's maxsplit to separate cmd and args
+    args = raw_text.split(None, 2)  # use python's maxsplit to separate cmd and args
     note_name = args[1]
 
     buttons = []
@@ -50,26 +49,25 @@ def get_note_type(msg: Message):
         elif msg.reply_to_message.document:
             content = msg.reply_to_message.document.file_id
             text, buttons = button_markdown_parser(msgtext, entities=entities)
-            text = ttext or text 
+            text = ttext or text
             data_type = Types.DOCUMENT
 
         elif msg.reply_to_message.photo:
-            content = msg.reply_to_message.photo[
-                -1].file_id  # last elem = best quality
+            content = msg.reply_to_message.photo[-1].file_id  # last elem = best quality
             text, buttons = button_markdown_parser(msgtext, entities=entities)
-            text = ttext or text 
+            text = ttext or text
             data_type = Types.PHOTO
 
         elif msg.reply_to_message.audio:
             content = msg.reply_to_message.audio.file_id
             text, buttons = button_markdown_parser(msgtext, entities=entities)
-            text = ttext or text 
+            text = ttext or text
             data_type = Types.AUDIO
 
         elif msg.reply_to_message.voice:
             content = msg.reply_to_message.voice.file_id
             text, buttons = button_markdown_parser(msgtext, entities=entities)
-            text = ttext or text 
+            text = ttext or text
             data_type = Types.VOICE
 
         elif msg.reply_to_message.video:
@@ -79,16 +77,17 @@ def get_note_type(msg: Message):
             data_type = Types.VIDEO
     elif len(args) >= 3:
         offset = len(args[2]) - len(
-            raw_text)  # set correct offset relative to command + notename
-        text, buttons = button_markdown_parser(args[2],
-                                               entities=msg.parse_entities()
-                                               or msg.parse_caption_entities(),
-                                               offset=offset)
+            raw_text
+        )  # set correct offset relative to command + notename
+        text, buttons = button_markdown_parser(
+            args[2],
+            entities=msg.parse_entities() or msg.parse_caption_entities(),
+            offset=offset,
+        )
         if buttons:
             data_type = Types.BUTTON_TEXT
         else:
             data_type = Types.TEXT
-
 
     return note_name, text, data_type, content, buttons
 
@@ -100,14 +99,14 @@ def get_welcome_type(msg: Message):
     content = None
     text = ""
     raw_text = msg.text or msg.caption
-    args = raw_text.split(None,
-                          1)  # use python's maxsplit to separate cmd and args
+    args = raw_text.split(None, 1)  # use python's maxsplit to separate cmd and args
 
     buttons = []
     # determine what the contents of the filter are - text, image, sticker, etc
     if len(args) >= 2:
         offset = len(args[1]) - len(
-            raw_text)  # set correct offset relative to command + notename
+            raw_text
+        )  # set correct offset relative to command + notename
         text, buttons = button_markdown_parser(
             args[1],
             entities=msg.parse_entities() or msg.parse_caption_entities(),

@@ -14,16 +14,23 @@ from tg_bot.modules.sql.users_sql import get_all_chats
 import tg_bot.modules.sql.global_kicks_sql as sql
 
 GKICK_ERRORS = {
-    "Bots can't add new chat members", "Channel_private", "Chat not found",
-    "Can't demote chat creator", "Chat_admin_required",
+    "Bots can't add new chat members",
+    "Channel_private",
+    "Chat not found",
+    "Can't demote chat creator",
+    "Chat_admin_required",
     "Group chat was deactivated",
     "Method is available for supergroup and channel chats only",
     "Method is available only for supergroups",
     "Need to be inviter of a user to kick it from a basic group",
-    "Not enough rights to restrict/unrestrict chat member", "Not in the chat",
+    "Not enough rights to restrict/unrestrict chat member",
+    "Not in the chat",
     "Only the creator of a basic group can kick group administrators",
-    "Peer_id_invalid", "User is an administrator of the chat",
-    "User_not_participant", "Reply message not found", "User not found"
+    "Peer_id_invalid",
+    "User is an administrator of the chat",
+    "User_not_participant",
+    "Reply message not found",
+    "User not found",
 }
 
 
@@ -38,8 +45,8 @@ def gkick(update: Update, context: CallbackContext):
             pass
         else:
             message.reply_text(
-                "User cannot be Globally kicked because: {}".format(
-                    excp.message))
+                "User cannot be Globally kicked because: {}".format(excp.message)
+            )
             return
     except TelegramError:
         pass
@@ -64,16 +71,21 @@ def gkick(update: Update, context: CallbackContext):
 
     chats = get_all_chats()
     banner = update.effective_user  # type: Optional[User]
-    send_to_list(bot, SUDO_USERS + SUPPORT_USERS,
-                 "<b>Global Kick</b>" \
-                 "\n#GKICK" \
-                 "\n<b>Status:</b> <code>Enforcing</code>" \
-                 "\n<b>Sudo Admin:</b> {}" \
-                 "\n<b>User:</b> {}" \
-                 "\n<b>ID:</b> <code>{}</code>".format(mention_html(banner.id, banner.first_name),
-                                              mention_html(user_chat.id, user_chat.first_name),
-                                                           user_chat.id),
-                html=True)
+    send_to_list(
+        bot,
+        SUDO_USERS + SUPPORT_USERS,
+        "<b>Global Kick</b>"
+        "\n#GKICK"
+        "\n<b>Status:</b> <code>Enforcing</code>"
+        "\n<b>Sudo Admin:</b> {}"
+        "\n<b>User:</b> {}"
+        "\n<b>ID:</b> <code>{}</code>".format(
+            mention_html(banner.id, banner.first_name),
+            mention_html(user_chat.id, user_chat.first_name),
+            user_chat.id,
+        ),
+        html=True,
+    )
     message.reply_text("Globally kicking user @{}".format(user_chat.username))
     sql.gkick_user(user_id, user_chat.username, 1)
     for chat in chats:
@@ -81,11 +93,13 @@ def gkick(update: Update, context: CallbackContext):
             member = bot.get_chat_member(chat.chat_id, user_id)
             if member.can_send_messages is False:
                 bot.unban_chat_member(
-                    chat.chat_id, user_id)  # Unban_member = kick (and not ban)
+                    chat.chat_id, user_id
+                )  # Unban_member = kick (and not ban)
                 bot.restrict_chat_member(
                     chat.chat_id,
                     user_id,
-                    permissions=ChatPermissions(can_send_messages=False))
+                    permissions=ChatPermissions(can_send_messages=False),
+                )
             else:
                 bot.unban_chat_member(chat.chat_id, user_id)
         except BadRequest as excp:
@@ -93,8 +107,8 @@ def gkick(update: Update, context: CallbackContext):
                 pass
             else:
                 message.reply_text(
-                    "User cannot be Globally kicked because: {}".format(
-                        excp.message))
+                    "User cannot be Globally kicked because: {}".format(excp.message)
+                )
                 return
         except TelegramError:
             pass
@@ -174,19 +188,18 @@ def gkickreset(update: Update, context: CallbackContext):
     return
 
 
-GKICK_HANDLER = CommandHandler("gkick",
-                               gkick,
-                               run_async=True,
-                               filters=CustomFilters.sudo_filter
-                               | CustomFilters.support_filter)
-SET_HANDLER = CommandHandler("gkickset",
-                             gkickset,
-                             run_async=True,
-                             filters=Filters.user(OWNER_ID))
-RESET_HANDLER = CommandHandler("gkickreset",
-                               gkickreset,
-                               run_async=True,
-                               filters=Filters.user(OWNER_ID))
+GKICK_HANDLER = CommandHandler(
+    "gkick",
+    gkick,
+    run_async=True,
+    filters=CustomFilters.sudo_filter | CustomFilters.support_filter,
+)
+SET_HANDLER = CommandHandler(
+    "gkickset", gkickset, run_async=True, filters=Filters.user(OWNER_ID)
+)
+RESET_HANDLER = CommandHandler(
+    "gkickreset", gkickreset, run_async=True, filters=Filters.user(OWNER_ID)
+)
 
 dispatcher.add_handler(GKICK_HANDLER)
 dispatcher.add_handler(SET_HANDLER)
