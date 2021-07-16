@@ -1,11 +1,10 @@
 import html
 from typing import Optional
 
-from telegram import Message, Chat, Update, User
+from telegram import Message, Chat, Update, User, ParseMode
 from telegram.error import BadRequest
 from telegram.ext import CommandHandler, Filters
 from telegram.utils.helpers import mention_html
-from telegram import ParseMode, User
 
 from tg_bot import dispatcher, CallbackContext, BAN_STICKER, LOGGER
 from tg_bot.modules.disable import DisableAbleCommandHandler
