@@ -275,7 +275,6 @@ def new_member(update: Update, context: CallbackContext):
                         reply_to_message_id=msg.message_id,
                         parse_mode=ParseMode.MARKDOWN,
                     )
-                    pass
                 else:
                     sent = send(
                         update,
