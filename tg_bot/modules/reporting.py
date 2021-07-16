@@ -1,9 +1,15 @@
+import html
+from telegram.constants import PARSEMODE_HTML
+
+from telegram.error import BadRequest, Unauthorized
+from tg_bot.modules.helper_funcs.extraction import extract_user_and_text
 from typing import Optional
 
 from telegram import Message, Chat, Update, User, ParseMode
 from telegram.ext import CommandHandler, RegexHandler, Filters
+from telegram.utils.helpers import mention_html
 
-from tg_bot import dispatcher, CallbackContext
+from tg_bot import LOGGER, dispatcher, CallbackContext
 from tg_bot.modules.helper_funcs.chat_status import user_not_admin, user_admin
 from tg_bot.modules.log_channel import loggable
 from tg_bot.modules.sql import reporting_sql as sql
@@ -62,31 +68,87 @@ def report_setting(update: Update, context: CallbackContext):
 @user_not_admin
 @loggable
 def report(update: Update, context: CallbackContext) -> str:
-    bot = context.bot
+    bot, args = context.bot, context.args
     message = update.effective_message  # type: Optional[Message]
     chat = update.effective_chat  # type: Optional[Chat]
     user = update.effective_user  # type: Optional[User]
-    ping_list = ""
 
-    if chat and message.reply_to_message and sql.chat_should_report(chat.id):
-        reported_user = message.reply_to_message.from_user  # type: Optional[User]
+    if chat and sql.chat_should_report(chat.id):
+        user_id, reason = extract_user_and_text(message, args)
+        chat_name = chat.title or chat.first or chat.username
+
+        if message.reply_to_message:
+            reported_user = message.reply_to_message.from_user  # type: Optional[User]
+        elif user_id:
+            reported_user = bot.getChatMember(
+                chat.id, user_id
+            ).user  # type: Optional[User]
+        else:
+            message.reply_text("I can't guess the person you want to report.")
+            return (
+                "<b>{}:</b>"
+                "\n#REPORTED FAILED"
+                "\n<b>Reporter:</b> {} (<code>{}</code>)".format(
+                    html.escape(chat_name),
+                    mention_html(user.id, user.first_name),
+                    user.id,
+                )
+            )
+
         if reported_user.id == bot.id:
             message.reply_text("Haha nope, not gonna report myself.")
             return ""
-        chat_name = chat.title or chat.first or chat.username
-        admin_list = chat.get_administrators()
 
-        for admin in admin_list:
+        log = (
+            "<b>{}:</b>"
+            "\n#REPORTED"
+            "\n<b>Reporter:</b> {}"
+            "\n<b>Whom:</b> {} (<code>{}</code>)".format(
+                html.escape(chat_name),
+                mention_html(user.id, user.first_name),
+                mention_html(reported_user.id, reported_user.first_name),
+                reported_user.id,
+            )
+        )
+        if reason:
+            log += "\n<b>Reason:</b> {}".format(reason)
+
+        admin_msg = log
+        if chat.type == chat.SUPERGROUP and chat.username:
+            admin_msg += (
+                "\n<b>Link:</b> "
+                + '<a href="http://telegram.me/{}/{}">click here</a>'.format(
+                    chat.username, message.message_id
+                )
+            )
+
+        for admin in chat.get_administrators():
             if admin.user.is_bot:  # can't message bots
                 continue
-
-            ping_list += f"​[​](tg://user?id={admin.user.id})"
+            if admin.user.id == user.id:  # don't have to get notifications
+                continue
+            if admin.user.id == reported_user.id:  # don't have to get notifications
+                continue
+            if sql.user_should_report(admin.user.id):
+                try:
+                    bot.send_message(
+                        admin.user.id, admin_msg, parse_mode=ParseMode.HTML
+                    )
+                except Unauthorized:
+                    pass
+                except BadRequest:  # TODO: cleanup exceptions
+                    LOGGER.exception("Exception while reporting user")
 
         message.reply_text(
-            f"Successfully reported [{reported_user.first_name}](tg://user?id={reported_user.id}) to admins! "
-            + ping_list,
-            parse_mode=ParseMode.MARKDOWN,
+            "Successfully reported "
+            + '<a href="tg://user?id={id}">{name}</a> (<code>{id}</code>)!'.format(
+                id=reported_user.id,
+                name=reported_user.first_name,
+            ),
+            parse_mode=ParseMode.HTML,
         )
+
+        return log
 
     return ""
 
