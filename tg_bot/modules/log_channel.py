@@ -8,7 +8,7 @@ FILENAME = __name__.rsplit(".", 1)[-1]
 if is_module_loaded(FILENAME):
     from telegram import Bot, Update, ParseMode, Message, Chat
     from telegram.error import BadRequest, Unauthorized
-    from telegram.ext import CommandHandler, run_async, Filters
+    from telegram.ext import CommandHandler, Filters
     from telegram.utils.helpers import escape_markdown
 
     from tg_bot import dispatcher, CallbackContext, LOGGER
@@ -19,19 +19,20 @@ if is_module_loaded(FILENAME):
         @wraps(func)
         def log_action(update: Update, context: CallbackContext, *args, **kwargs):
             result = func(update, context, *args, **kwargs)
+            bot = context.bot
             chat = update.effective_chat  # type: Optional[Chat]
             message = update.effective_message  # type: Optional[Message]
             if result:
                 if chat.type == chat.SUPERGROUP and chat.username:
                     result += (
                         "\n<b>Link:</b> "
-                        '<a href="http://telegram.me/{}/{}">click here</a>'.format(
+                        + '<a href="http://telegram.me/{}/{}">click here</a>'.format(
                             chat.username, message.message_id
                         )
                     )
                 log_chat = sql.get_chat_log_channel(chat.id)
                 if log_chat:
-                    send_log(Bot, log_chat, chat.id, result)
+                    send_log(bot, log_chat, chat.id, result)
             elif result == "":
                 pass
             else:
