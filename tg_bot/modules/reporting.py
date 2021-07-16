@@ -65,6 +65,61 @@ def report_setting(update: Update, context: CallbackContext):
             )
 
 
+@loggable
+def alert(update: Update, context: CallbackContext) -> str:
+    bot = context.bot
+    message = update.effective_message  # type: Optional[Message]
+    chat = update.effective_chat  # type: Optional[Chat]
+    user = update.effective_user  # type: Optional[User]
+    ping_list = ""
+
+    if chat and sql.chat_should_report(chat.id):
+        chat_name = chat.title or chat.first or chat.username
+        admin_list = chat.get_administrators()
+
+        log = (
+            "<b>{}:</b>"
+            "\n#ALERTED"
+            "\n<b>Reporter:</b> {} (<code>{}</code>)".format(
+                html.escape(chat_name),
+                mention_html(user.id, user.first_name),
+                user.id,
+            )
+        )
+
+        admin_msg = log
+        if chat.type == chat.SUPERGROUP and chat.username:
+            admin_msg += (
+                "\n<b>Link:</b> "
+                + '<a href="http://telegram.me/{}/{}">click here</a>'.format(
+                    chat.username, message.message_id
+                )
+            )
+
+        for admin in admin_list:
+            if admin.user.is_bot:  # can't message bots
+                continue
+            if sql.user_should_report(admin.user.id):
+                ping_list += f"​[​](tg://user?id={admin.user.id})"
+                try:
+                    bot.send_message(
+                        admin.user.id, admin_msg, parse_mode=ParseMode.HTML
+                    )
+                except Unauthorized:
+                    pass
+                except BadRequest:  # TODO: cleanup exceptions
+                    LOGGER.exception("Exception while reporting user")
+
+        message.reply_text(
+            "Successfully alerted admins!" + ping_list,
+            parse_mode=ParseMode.MARKDOWN,
+        )
+
+        return log
+
+    return ""
+
+
 @user_not_admin
 @loggable
 def report(update: Update, context: CallbackContext) -> str:
@@ -87,7 +142,7 @@ def report(update: Update, context: CallbackContext) -> str:
             message.reply_text("I can't guess the person you want to report.")
             return (
                 "<b>{}:</b>"
-                "\n#REPORTED FAILED"
+                "\n#REPORTED_FAILED"
                 "\n<b>Reporter:</b> {} (<code>{}</code>)".format(
                     html.escape(chat_name),
                     mention_html(user.id, user.first_name),
@@ -178,28 +233,28 @@ react if someone in your group is spamming?
 Presenting reports; if someone in your group thinks someone needs reporting, they now have \
 an easy way to call all admins.
 
- - /report <reason>: reply to a message to report it to admins.
- - @admin: reply to a message to report it to admins.
-NOTE: neither of these will get triggered if used by admins
+ - /report <userhandle> <reason>: reply to a message or add @username to report it to admins.
+ - @admin: alert admins.
 
 *Admin only:*
  - /reports <on/off>: change report setting, or view current status.
    - If done in pm, toggles your status.
    - If in chat, toggles that chat's status.
 
-To report a user, simply reply to user's message with @admin or /report. \
-This message tags all the chat admins; same as if they had been @'ed.
-You MUST reply to a message to report a user; you can't just use @admin to tag admins for no reason!
+To report a user, simply reply to user's message with /report or add @username. \
+This message will tag all the chat admins except people who chose not to get any notifications.
 
-Note that the report commands do not work when admins use them; or when used to report an admin. Bot assumes that \
+Note that /report command does not work when admins use them; or when used to report an admin. Bot assumes that \
 admins don't need to report, or be reported!
+
+Besides, @admin works for everyone. But don't play with it as admins can ban you when you abuse it.
 """
 
 REPORT_HANDLER = CommandHandler(
     "report", report, filters=Filters.chat_type.groups, run_async=True
 )
 SETTING_HANDLER = CommandHandler("reports", report_setting, run_async=True)
-ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", report, run_async=True)
+ADMIN_REPORT_HANDLER = RegexHandler("(?i)@admin(s)?", alert, run_async=True)
 
 dispatcher.add_handler(REPORT_HANDLER, group=REPORT_GROUPS)
 dispatcher.add_handler(ADMIN_REPORT_HANDLER, group=REPORT_GROUPS)
