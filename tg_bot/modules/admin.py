@@ -222,7 +222,7 @@ def pin(update: Update, context: CallbackContext) -> str:
             )
             if not is_silent:
                 update.effective_message.reply_text(
-                    "Pinned and it will be notified to users!"
+                    "Pinned and notified to users!"
                 )
         except BadRequest as excp:
             if excp.message == "Chat_not_modified":
